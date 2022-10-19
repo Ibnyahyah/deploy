@@ -31,7 +31,6 @@ const signUp = async (req, res) => {
         res.status(201).json({ message: 'user created successfully', token: token, user: newUser });
     } catch (e) {
         res.status(500).json({ message: 'Something went wrong', error: e.message });
-        console.log(e);
     }
 };
 
@@ -39,10 +38,11 @@ const signIn = async (req, res) => {
     const { email, password } = req.body;
     try {
         const user = await User.findOne({ email });
-        if (!user) return res.json(404).json({ message: 'user not found' });
-        const isPasswordCorrect = bcrypt.compare(password, user.password);
+        if (!user) return res.status(404).json({ message: 'User not found' });
 
-        if (!isPasswordCorrect) return res.json(404).json({ message: 'password incorrect' });
+        const isPasswordCorrect = bcrypt.compareSync(password, user.password);
+
+        if (!isPasswordCorrect) return res.status(404).json({ message: 'Password incorrect' });
 
         const token = generateToken(user);
         res.status(200).json({ message: 'Successfully logged in', token: token, user: user });

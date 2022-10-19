@@ -16,9 +16,9 @@ const signUp = async (req, res) => {
     try {
         const existingUser = await User.findOne({ email });
         if (existingUser) return res.status(400).json({ message: 'user already exist' });
-        const hashedPassword = await bcrypt.hash(password, 12);
         const isFirstUser = await User.countDocuments() === 0;
         const role = isFirstUser ? 'admin' : 'user';
+        const hashedPassword = await bcrypt.hash(password, 12);
         let newUser;
         if (isFirstUser) {
             newUser = await User.create({ email, name, phone, hashedPassword, role: 'admin' });

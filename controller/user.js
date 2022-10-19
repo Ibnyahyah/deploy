@@ -1,8 +1,10 @@
 const express = require('express');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const JWT = require('jsonwebtoken');
 
 const User = require('../model/user');
+
+const router = express.Router();
 
 function generateToken(data) {
     return JWT.sign({ data }, process.env.ACCESS_TOKEN_SECRET, {
@@ -12,26 +14,26 @@ function generateToken(data) {
 
 
 const signUp = async (req, res) => {
+    let newUser;
     const { name, email, phone, password } = req.body;
     try {
         const existingUser = await User.findOne({ email });
         if (existingUser) return res.status(400).json({ message: 'user already exist' });
         const isFirstUser = await User.countDocuments() === 0;
         const role = isFirstUser ? 'admin' : 'user';
-        const hashedPassword = await bcrypt.hash(password, 12);
-        let newUser;
+        const salt = bcrypt.genSaltSync(10);
+        const hashedPassword = bcrypt.hashSync(password, salt)
         if (isFirstUser) {
-            newUser = await User.create({ email, name, phone, hashedPassword, role: 'admin' });
+            newUser = await User.create({ email, name, phone, password: hashedPassword, role: 'admin' });
         }
-        newUser = await User.create({ email, name, phone, hashedPassword, role });
-
+        newUser = await User.create({ email, name, phone, password:hashedPassword, role });
         const token = generateToken(newUser);
-
         res.status(201).json({ message: 'user created successfully', token: token, user: newUser });
     } catch (e) {
         res.status(500).json({ message: 'Something went wrong', error: e.message });
+        console.log(e);
     }
-}
+};
 
 const signIn = async (req, res) => {
     const { email, password } = req.body;
@@ -96,4 +98,5 @@ const getUser = async (req, res) => {
 }
 
 
-module.exports = { signUp, signIn, updateUser, getUsers, getUser };
+
+module.exports = { getUser, getUsers, signIn, updateUser, signUp };

@@ -97,6 +97,21 @@ const getUser = async (req, res) => {
     }
 }
 
+const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+    try {
+        const token = req.headers.authorization.split(' ')[1];
+        const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        const user = await User.findById({ id: decoded.id });
+        if (!user) return res.status(404).json({ message: 'user not found' });
+        const salt = bcrypt.genSaltSync(10);
+        const hashedPassword = bcrypt.hashSync(password, salt)
+        user.password = hashedPassword;
+        await user.save();
+        //Mailer Code
+    } catch (error) {
+        res.status(500).json({ message: 'Something went wrong' });
+    }
+}
 
-
-module.exports = { getUser, getUsers, signIn, updateUser, signUp };
+module.exports = { getUser, getUsers, signIn, updateUser, signUp, forgotPassword };

@@ -4,11 +4,10 @@ const JWT = require('jsonwebtoken');
 
 const User = require('../model/user');
 
-const router = express.Router();
 
 function generateToken(data) {
     return JWT.sign({ data }, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "5h",
+        expiresIn: "5y",
     });
 }
 
@@ -99,4 +98,4 @@ const getUser = async (req, res) => {
 
 
 
-module.exports = { getUser, getUsers, signIn, updateUser, signUp };
+module.exports = { getUser, getUsers, signIn, updateUser, signUp, };

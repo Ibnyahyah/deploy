@@ -14,7 +14,7 @@ function generateToken(data) {
 
 const signUp = async (req, res) => {
     let newUser;
-    const { name, email, phone,agentCode, password } = req.body;
+    const { name, email, phone, agentCode, password } = req.body;
     try {
         const existingUser = await User.findOne({ email });
         if (existingUser) return res.status(400).json({ message: 'user already exist' });
@@ -25,7 +25,7 @@ const signUp = async (req, res) => {
         if (isFirstUser) {
             newUser = await User.create({ email, name, phone, password: hashedPassword, role: 'admin' });
         }
-        newUser = await User.create({ email, name, phone,agentCode, password:hashedPassword, role });
+        newUser = await User.create({ email, name, phone, agentCode, password: hashedPassword, role });
         const token = generateToken(newUser);
         res.status(201).json({ message: 'user created successfully', token: token, user: newUser });
     } catch (e) {

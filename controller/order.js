@@ -5,7 +5,7 @@ const JWT = require('jsonwebtoken')
 
 // user ends
 const createOrder = async (req, res) => {
-    const { name, email, phone, product, address } = req.body;
+    const { name, email, phone, product, address ,orderQuantity} = req.body;
     try {
         const token = req.headers.authorization.split(" ")[1];
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
@@ -13,7 +13,7 @@ const createOrder = async (req, res) => {
         const user = await User.findById(decoded.data._id);
         if (!user) return res.status(404).json({ message: "user not found" });
         const order = await Order.create({
-            name, email, phone, product, address, userId: decoded.data._id
+            name, email, phone, product, address,orderQuantity, userId: decoded.data._id
         });
         user.orders.push(order);
         await user.save();

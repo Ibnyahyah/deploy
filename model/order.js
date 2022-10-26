@@ -20,6 +20,9 @@ const orderSchema = new mongoose.Schema({
     address: {
         type: String, require: true
     },
+    orderQuantity: {
+        type: String, require: true
+    },
     status: {
         type: String,
         default: 'Pending'

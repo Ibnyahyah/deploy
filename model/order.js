@@ -1,27 +1,25 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-    userId: {
+    customerId: {
         type: String,
         require: true
     },
-    name: {
-        type: String, require: true
-    },
-    email: {
-        type: String, require: true
-    },
-    phone: {
-        type: String, require: true
+    agentCode: {
+        type: String,
+        require: true
     },
     product: {
-        type: String, require: true
-    },
-    address: {
-        type: String, require: true
+        type: String,
+        require: true
     },
     orderQuantity: {
-        type: String, require: true
+        type: String,
+        require: true
+    },
+    orderTotalPrice: {
+        type: String,
+        require: true
     },
     status: {
         type: String,

@@ -4,8 +4,7 @@ const cors = require('cors');
 require('dotenv').config();
 const mongoose = require('mongoose');
 
-// router 
-const UserRoute = require('./routes/user');
+// router
 const OrderRoute = require('./routes/order');
 const AdminRoute = require('./routes/admin');
 
@@ -16,8 +15,6 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
-app.use('/api/user', UserRoute);
 app.use('/api/order', OrderRoute);
 app.use('/api/admin', AdminRoute);
 

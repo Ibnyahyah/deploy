@@ -5,7 +5,23 @@ const orderSchema = new mongoose.Schema({
         type: String,
         require: true
     },
+    customerPhone: {
+        type: String,
+        require: true
+    },
+    customerAddress: {
+        type: Object,
+        require: true
+    },
     agentCode: {
+        type: String,
+        require: true
+    },
+    agentPhone: {
+        type: String,
+        require: true
+    },
+    agentFullName: {
         type: String,
         require: true
     },

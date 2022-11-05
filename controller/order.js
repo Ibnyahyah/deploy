@@ -45,12 +45,23 @@ const createOrder = async (req, res) => {
 
 
         const order = await Order.create({
-            product, orderQuantity, orderTotalPrice, customerId: customer._id, agentCode: agentCode,
+            product,
+            orderQuantity,
+            orderTotalPrice,
+            customerId: customer._id,
+            customerPhone: customer.customerPhone,
+            customerAddress: {
+                street: customer.customerStreet,
+                city: customer.customerCity,
+            },
+            agentCode: agentCode,
+            agentPhone: agent.phone,
+            agentFullName: agent.agentFirstName.concat(' ', agent.agentLastName),
         });
         customer.customerOrders.push(order);
-        await customer.save();
         agent.orders.push(order);
         await agent.save();
+        await customer.save();
         res.status(200).json({ message: 'Your Order was successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Something went wrong' });
@@ -111,7 +122,19 @@ const getAgent = async (req, res) => {
     try {
         const agent = await Agent.findOne({ agentCode });
         if (!agent) return res.status(404).json({ message: 'Agent Not Found' });
-        res.status(200).json(agent);
+        const {orders, customers, ...agentInfo} = agent._doc;
+        res.status(200).json(agentInfo);
+    } catch (e) {
+        res.status(500).json({ message: 'Something went wrong', error: e.message });
+    }
+}
+const getCustomer = async (req, res) => {
+    const { customerPhone } = req.params;
+    try {
+        const customer = await Customer.findOne({ customerPhone });
+        if (!customer) return res.status(404).json({ message: 'Customer Not Found' });
+        const {customerOrders, ...customerInfo} = customer._doc;
+        res.status(200).json(customerInfo);
     } catch (e) {
         res.status(500).json({ message: 'Something went wrong', error: e.message });
     }
@@ -135,5 +158,5 @@ const getAgentOrders = async (req, res) => {
     }
 };
 
-module.exports = { createOrder, getOrder, getOrders, setStatus, getAgentOrders, getAgent };
+module.exports = { createOrder, getOrder, getOrders, setStatus, getAgentOrders, getAgent, getCustomer };
 

@@ -47,6 +47,7 @@ const createOrder = async (req, res) => {
             products,
             orderTotalPrice,
             customerId: customer._id,
+            customerFullName: customer.customerFirstName.concat(' ', customer.customerLastName),
             customerPhone: customer.customerPhone,
             customerAddress: {
                 street: customer.customerStreet,

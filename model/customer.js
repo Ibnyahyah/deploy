@@ -7,10 +7,7 @@ const customerSchema = new mongoose.Schema({
     customerEmail: {
         type: String,
     },
-    customerFirstName: {
-        type: String,
-    },
-    customerLastName: {
+    customerFullName: {
         type: String,
     },
     role: {

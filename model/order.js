@@ -25,12 +25,8 @@ const orderSchema = new mongoose.Schema({
         type: String,
         require: true
     },
-    product: {
-        type: String,
-        require: true
-    },
-    orderQuantity: {
-        type: String,
+    products: {
+        type: Array,
         require: true
     },
     orderTotalPrice: {

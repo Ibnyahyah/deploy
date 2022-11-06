@@ -17,8 +17,7 @@ const createOrder = async (req, res) => {
         customerStreet,
         customerNearestLandmark,
         customerCity,
-        product,
-        orderQuantity,
+        products,
         orderTotalPrice,
     } = req.body;
     try {
@@ -45,8 +44,7 @@ const createOrder = async (req, res) => {
 
 
         const order = await Order.create({
-            product,
-            orderQuantity,
+            products,
             orderTotalPrice,
             customerId: customer._id,
             customerPhone: customer.customerPhone,

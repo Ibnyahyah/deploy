@@ -10,8 +10,7 @@ const createOrder = async (req, res) => {
     const {
         agentCode,
         customerEmail,
-        customerFirstName,
-        customerLastName,
+        customerFullName,
         customerPhone,
         customerGender,
         customerStreet,
@@ -28,8 +27,7 @@ const createOrder = async (req, res) => {
         if (!customerExist) {
             customer = await Customer.create({
                 customerEmail,
-                customerFirstName,
-                customerLastName,
+                customerFullName,
                 customerPhone,
                 customerGender,
                 customerStreet,
@@ -47,7 +45,7 @@ const createOrder = async (req, res) => {
             products,
             orderTotalPrice,
             customerId: customer._id,
-            customerFullName: customer.customerFirstName.concat(' ', customer.customerLastName),
+            customerFullName: customer.customerFullName,
             customerPhone: customer.customerPhone,
             customerAddress: {
                 street: customer.customerStreet,

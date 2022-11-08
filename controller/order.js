@@ -78,7 +78,7 @@ const setStatus = async (req, res) => {
         const order = await Order.findByIdAndUpdate(id);
         order.status = status;
         await order.save();
-        res.status(200).json(order);
+        res.status(200).json({message: 'Order Status set to '+ order.status});
 
     } catch (error) {
         res.status(500).json({ message: 'Something went wrong' });

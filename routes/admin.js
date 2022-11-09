@@ -5,7 +5,7 @@ const { getAgentOrders } = require('../controller/order');
 
 router.post('/sign-in', (req, res) => signIn(req, res));
 router.post('/create-agent', (req, res) => createAgent(req, res));
-router.get('/agent', (req, res) => getAgent(req, res));
+router.get('/agent/:agentCode', (req, res) => getAgent(req, res));
 router.get('/agents', (req, res) => getAgents(req, res));
 router.get('/customers', (req, res) => getCustomers(req, res));
 router.get('/customer/:id', (req, res) => getCustomer(req, res));

@@ -51,15 +51,18 @@ const createAgent = async (req, res) => {
 }
 
 const getAgent = async (req, res) => {
-    const { agentCode } = req.body;
+    const  {agentCode} = req.params;
+    console.log(req.params);
+    // const token = req.headers.authorization.split(' ')[1];
     try {
-        const token = req.headers.authorization.split(' ')[1];
-        const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
-        const agent = await Agent.findOne({ agentCode });
+        // if (!token) return res.status(401).json({ message: 'unauthorized' });
+        // const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        // if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
+        const agent = await Agent.findOne({ agentCode: agentCode });
         if (!agent) return res.status(404).json({ message: 'Agent Not Found' });
         res.status(200).json(agent);
     } catch (e) {
+        console.log(e);
         res.status(500).json({ message: 'Something went wrong', error: e.message });
     }
 }

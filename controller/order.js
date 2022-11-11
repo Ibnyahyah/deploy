@@ -34,8 +34,8 @@ const createOrder = async (req, res) => {
                 customerNearestLandmark,
                 customerCity,
             });
-            await agent.save();
             agent.customers.push(customer);
+            await agent.save();
         } else {
             customer = customerExist;
         }
@@ -55,9 +55,9 @@ const createOrder = async (req, res) => {
             agentFullName: agent.agentFirstName.concat(' ', agent.agentLastName),
         });
         customer.customerOrders.push(order);
+        await customer.save();
         agent.orders.push(order);
         await agent.save();
-        await customer.save();
         res.status(200).json({ message: 'Your Order was successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Something went wrong' });

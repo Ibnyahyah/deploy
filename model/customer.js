@@ -17,6 +17,7 @@ const customerSchema = new mongoose.Schema({
     },
     customerPhone: {
         type: String,
+        unique: true
     },
     customerGender: {
         type: String,

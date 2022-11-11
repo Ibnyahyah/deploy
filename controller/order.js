@@ -23,7 +23,7 @@ const createOrder = async (req, res) => {
         let customer;
         const agent = await Agent.findOne({ agentCode });
         if (!agent) return res.status(404).json({ message: 'Agent not found' });
-        const customerExist = await Customer.findOne({ customerEmail });
+        const customerExist = await Customer.findOne({ customerPhone });
         if (!customerExist) {
             customer = await Customer.create({
                 customerEmail,
@@ -39,7 +39,6 @@ const createOrder = async (req, res) => {
         } else {
             customer = customerExist;
         }
-
 
         const order = await Order.create({
             products,

@@ -38,6 +38,10 @@ const createOrder = async (req, res) => {
             await agent.save();
         } else {
             customer = customerExist;
+            if(agent.agentCode != customer.agentCode && agent.customers.includes(agent.agentCode !== customer.agentCode)){
+                agent.customers.push(customer);
+                await agent.save();
+            }
         }
 
         const order = await Order.create({
@@ -60,6 +64,7 @@ const createOrder = async (req, res) => {
         await agent.save();
         res.status(200).json({ message: 'Your Order was successfully' });
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: 'Something went wrong' });
     }
 }

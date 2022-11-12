@@ -26,6 +26,7 @@ const createOrder = async (req, res) => {
         const customerExist = await Customer.findOne({ customerPhone });
         if (!customerExist) {
             customer = await Customer.create({
+                agentCode : agent.agentCode,
                 customerEmail,
                 customerFullName,
                 customerPhone,

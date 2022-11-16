@@ -21,10 +21,6 @@ const createProducts = async (req, res) => {
 
 const getAllProducts = async (req, res) => {
     try {
-        const token = req.headers.authorization.split(' ')[1];
-        if (!token) return res.status(401).json({ message: 'unauthorized' });
-        const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
         const product = await Product.find();
         res.status(200).json(product);
     } catch (error) {

@@ -1,21 +1,29 @@
+const Product = require('../model/product');
 const Stock = require('../model/stock');
 const JWT = require('jsonwebtoken')
 
 // create Stock
 const createStock = async (req, res) => {
-    const { stockName, openingStock, closingStock, receipts, sales, damages, physicalCount, variance } = req.body;
+    const { stockName, openingStock, closingStock, receipts, sales, damages, physicalCount, variance, products } = req.body;
     try {
         const token = req.headers.authorization.split(' ')[1];
         if (!token) return res.status(401).json({ message: 'unauthorized' });
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
         if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
-        // const product = await Product.findOne({ productName });
-        // if (product) return res.status(400).json({ message: 'Product already exists' });
-        await Stock.create({ stockName, openingStock, closingStock, receipts, sales, damages, physicalCount, variance });
+        const prdcts = await Product.find({ productName: stockName });
 
+        const arr = [];
+
+        prdcts.find(function (prod) {
+            if (new Date(prod.createdAt).getDay() == new Date().getDay()) {
+                arr.push(prod);
+            }
+        });
+        await Stock.create({ stockName, openingStock, closingStock, receipts, sales, damages, physicalCount, variance, products: arr });
         res.status(200).json({ message: 'Stock created successfully' })
     } catch (error) {
         res.status(500).json({ message: 'Something went wrong' });
+        console.log(error);
     }
 }
 

@@ -26,6 +26,9 @@ const stockSchema = new mongoose.Schema({
     variance: {
         type: String,
     },
+    products: {
+        type: Array
+    }
 }, { timestamps: true });
 
 module.exports = mongoose.model("Stock", stockSchema);

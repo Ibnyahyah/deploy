@@ -8,6 +8,7 @@ const mongoose = require('mongoose');
 const OrderRoute = require('./routes/order');
 const AdminRoute = require('./routes/admin');
 const ProductRoute = require('./routes/product');
+const StockRoute = require('./routes/stock');
 
 // configuration
 const app = express();
@@ -19,6 +20,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api/order', OrderRoute);
 app.use('/api/admin', AdminRoute);
 app.use('/api/product', ProductRoute);
+app.use('/api/stock', StockRoute);
 
 app.get('/', (req, res) => {
     res.send("<h1 style=\"text-align:center; color:seagreen;\">Server Running....</h1>")

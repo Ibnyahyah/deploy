@@ -1,9 +1,9 @@
-const Product = require('../model/product');
+const Stock = require('../model/stock');
 const JWT = require('jsonwebtoken')
 
-// create products
-const createProducts = async (req, res) => {
-    const { productName, productBrand, skuType, skuQty, price } = req.body;
+// create Stock
+const createStock = async (req, res) => {
+    const { stockName, openingStock, closingStock, receipts, sales, damages, physicalCount, variance } = req.body;
     try {
         const token = req.headers.authorization.split(' ')[1];
         if (!token) return res.status(401).json({ message: 'unauthorized' });
@@ -11,26 +11,26 @@ const createProducts = async (req, res) => {
         if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
         // const product = await Product.findOne({ productName });
         // if (product) return res.status(400).json({ message: 'Product already exists' });
-        await Product.create({ productName, productBrand, skuType, skuQty, price });
+        await Stock.create({ stockName, openingStock, closingStock, receipts, sales, damages, physicalCount, variance });
 
-        res.status(200).json({ message: 'Product created successfully' })
+        res.status(200).json({ message: 'Stock created successfully' })
     } catch (error) {
         res.status(500).json({ message: 'Something went wrong' });
     }
 }
 
-const getAllProducts = async (req, res) => {
+const getAllStocks = async (req, res) => {
     try {
-        const product = await Product.find();
-        res.status(200).json(product);
+        const stock = await Stock.find();
+        res.status(200).json(stock);
     } catch (error) {
         res.status(500).json({ message: 'Something went wrong' });
     }
 }
 
-const updateProducts = async (req, res) => {
+const updateStocks = async (req, res) => {
     const { id } = req.params;
-    const { productName, productBrand, skuType, skuQty, price } = req.body;
+    const { stockName, openingStock, closingStock, receipts, sales, damages, physicalCount, variance } = req.body;
 
     try {
         const token = req.headers.authorization.split(' ')[1];
@@ -38,30 +38,34 @@ const updateProducts = async (req, res) => {
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
         if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
 
-        const product = await Product.findByIdAndUpdate(id);
-        if (!product) return res.status(404).json({ message: 'Product Not Found' });
-        product.productName = productName;
-        product.productBrand = productBrand;
-        product.skuType = skuType;
-        product.skuQty = skuQty;
-        product.price = price;
+        const stock = await Stock.findByIdAndUpdate(id);
+        if (!stock) return res.status(404).json({ message: 'Stock Not Found' });
+        stock.stockName = stockName;
+        stock.openingStock = openingStock;
+        stock.closingStock = closingStock;
+        stock.receipts = receipts;
+        stock.damages = damages;
+        stock.sales = sales;
+        stock.physicalCount = physicalCount;
+        stock.variance = variance;
 
-        await product.save();
-        res.status(200).json({ message: 'Product updated successfully' });
+        await stock.save();
+        res.status(200).json({ message: 'Stock updated successfully' });
     } catch (error) {
         res.status(500).json({ message: "Something went wrong" });
     }
 }
-const deleteProduct = async (req, res) => {
+
+const deleteStock = async (req, res) => {
     const { id } = req.params;
     try {
         const token = req.headers.authorization.split(' ')[1];
         if (!token) return res.status(401).json({ message: 'unauthorized' });
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
         if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
-        const product = await Product.findByIdAndDelete(id);
-        if (!product) return res.status(404).json({ message: 'Product Not Found' });
-        res.status(200).json({ message: 'Product deleted successfully' });
+        const stock = await Stock.findByIdAndDelete(id);
+        if (!stock) return res.status(404).json({ message: 'Stock Not Found' });
+        res.status(200).json({ message: 'Stock deleted successfully' });
 
     } catch (error) {
         res.status(500).json({ message: 'Something went wrong' });
@@ -69,4 +73,4 @@ const deleteProduct = async (req, res) => {
     }
 }
 
-module.exports = { createProducts, getAllProducts, updateProducts, deleteProduct };
+module.exports = { createStock, getAllStocks, updateStocks, deleteStock };

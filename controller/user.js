@@ -14,18 +14,18 @@ function generateToken(data) {
 
 const signUp = async (req, res) => {
     let newUser;
-    const { name, email, phone,nearestLandmark,gender, agentCode, password } = req.body;
+    const { name, email, phone, nearestLandmark, gender, agentCode, password } = req.body;
     try {
         const existingUser = await User.findOne({ email });
         if (existingUser) return res.status(400).json({ message: 'user already exist' });
         const isFirstUser = await User.countDocuments() === 0;
-        const role = isFirstUser ? 'admin' : 'user';
+        const role = isFirstUser ? 'admin' : 'sub-admin';
         const salt = bcrypt.genSaltSync(10);
         const hashedPassword = bcrypt.hashSync(password, salt)
         if (isFirstUser) {
             newUser = await User.create({ email, name, phone, password: hashedPassword, role: 'admin' });
         }
-        newUser = await User.create({ email, name, phone, agentCode, nearestLandmark,gender,password: hashedPassword, role });
+        newUser = await User.create({ email, name, phone, agentCode, nearestLandmark, gender, password: hashedPassword, role });
         const token = generateToken(newUser);
         res.status(201).json({ message: 'user created successfully', token: token, user: newUser });
     } catch (e) {

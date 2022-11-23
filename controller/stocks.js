@@ -1,5 +1,5 @@
 const Product = require('../model/product');
-// const Stock = require('../model/stock');
+const Stock = require('../model/stock');
 const JWT = require('jsonwebtoken')
 
 // create Stock
@@ -29,7 +29,7 @@ const JWT = require('jsonwebtoken')
 
 const getAllStocks = async (req, res) => {
     try {
-        const product = await Product.find();
+        const product = await Stock.find();
         res.status(200).json(product);
     } catch (error) {
         console.log(error)
@@ -56,9 +56,28 @@ const updateStocks = async (req, res) => {
         product.sales = sales;
         product.physicalCount = physicalCount;
         product.variance = variance;
+        const updateStock = await Stock.findOne({ brandName: product.productName });
+        if (!updateStock) return res.status(404).json({ message: 'Stock Not Found' });
 
-        await product.save();
-        res.status(200).json({ message: 'Product updated successfully' });
+        console.log(updateStock.products);
+        updateStock.products.forEach(async (prod) => {
+            console.log({ 'some': (prod._id == id), 'prod': prod._id, 'id': id });
+            if (prod._id == id) {
+                prod.openingStock = openingStock;
+                prod.closingStock = closingStock;
+                prod.receipts = receipts;
+                prod.damages = damages;
+                prod.sales = sales;
+                prod.physicalCount = physicalCount;
+                prod.variance = variance;
+
+                await product.save();
+
+                updateStock.products.splice(updateStock.products.indexOf(prod), 1, product);
+                await updateStock.save();
+                res.status(200).json({ message: 'Product updated successfully' });
+            }
+        });
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: "Something went wrong" });

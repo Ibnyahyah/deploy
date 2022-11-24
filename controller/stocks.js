@@ -59,7 +59,6 @@ const updateStocks = async (req, res) => {
         const updateStock = await Stock.findOne({ brandName: product.productName });
         if (!updateStock) return res.status(404).json({ message: 'Stock Not Found' });
 
-        console.log(updateStock.products);
         updateStock.products.forEach(async (prod) => {
             console.log({ 'some': (prod._id == id), 'prod': prod._id, 'id': id });
             if (prod._id == id) {

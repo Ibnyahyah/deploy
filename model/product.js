@@ -23,24 +23,31 @@ const productSchema = new mongoose.Schema({
     },
     openingStock: {
         type: String,
+        default:'0',
     },
     closingStock: {
         type: String,
+        default:'0',
     },
     receipts: {
         type: String,
+        default:'0',
     },
     sales: {
         type: String,
+        default:'0',
     },
     damages: {
         type: String,
+        default:'0',
     },
     physicalCount: {
         type: String,
+        default:'0',
     },
     variance: {
         type: String,
+        default:'0',
     },
 }, { timestamps: true });
 

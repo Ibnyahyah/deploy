@@ -29,8 +29,27 @@ const JWT = require('jsonwebtoken')
 
 const getAllStocks = async (req, res) => {
     try {
-        const product = await Stock.find();
-        res.status(200).json(product);
+        const stocks = await Stock.find();
+        res.status(200).json(stocks);
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: 'Something went wrong' });
+    }
+}
+
+const getTodayStocks = async (req, res) => {
+    const date = new Date()
+    let todayStocks = [];
+    try {
+        const stocks = await Stock.find();
+        stocks.map(stock => {
+            stock.products.map(prod => {
+                if (new Date(prod.createdAt).getDate() == date.getDate() && new Date(prod.createdAt).getFullYear() == date.getFullYear()) {
+                    todayStocks.push(prod);
+                }
+            })
+        })
+        res.status(200).json(todayStocks);
     } catch (error) {
         console.log(error)
         res.status(500).json({ message: 'Something went wrong' });
@@ -100,4 +119,4 @@ const updateStocks = async (req, res) => {
 //     }
 // }
 
-module.exports = { getAllStocks, updateStocks };
+module.exports = { getAllStocks, updateStocks, getTodayStocks };

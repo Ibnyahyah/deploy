@@ -58,7 +58,7 @@ const getTodayStocks = async (req, res) => {
 
 const updateStocks = async (req, res) => {
     const { id } = req.params;
-    const { openingStock, closingStock, receipts, sales, damages, physicalCount, variance } = req.body;
+    const { availableStock, openingStock, closingStock, receipts, sales, damages, physicalCount, variance } = req.body;
 
     try {
         const token = req.headers.authorization.split(' ')[1];
@@ -68,6 +68,7 @@ const updateStocks = async (req, res) => {
 
         const product = await Product.findByIdAndUpdate(id);
         if (!product) return res.status(404).json({ message: 'Product Not Found' });
+        product.availableStock = availableStock;
         product.openingStock = openingStock;
         product.closingStock = closingStock;
         product.receipts = receipts;
@@ -82,6 +83,7 @@ const updateStocks = async (req, res) => {
             console.log({ 'some': (prod._id == id), 'prod': prod._id, 'id': id });
             if (prod._id == id) {
                 prod.openingStock = openingStock;
+                prod.availableStock = availableStock;
                 prod.closingStock = closingStock;
                 prod.receipts = receipts;
                 prod.damages = damages;

@@ -99,8 +99,17 @@ const deleteProduct = async (req, res) => {
         if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
         const product = await Product.findByIdAndDelete(id);
         if (!product) return res.status(404).json({ message: 'Product Not Found' });
-        res.status(200).json({ message: 'Product deleted successfully' });
+        const deleteStock = await Stock.findOne({ brandName: product.productName });
+        if (!deleteStock) return res.status(404).json({ message: 'Stock Not Found' });
 
+        deleteStock.products.forEach(async (prod) => {
+            console.log({ 'some': (prod._id == id), 'prod': prod._id, 'id': id });
+            if (prod._id == id) {
+                deleteStock.products.splice(deleteStock.products.indexOf(prod), 1);
+                await deleteStock.save();
+                res.status(200).json({ message: 'Product deleted successfully' });
+            }
+        });
     } catch (error) {
         res.status(500).json({ message: 'Something went wrong' });
         console.log(error);

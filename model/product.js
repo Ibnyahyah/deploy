@@ -11,7 +11,8 @@ const productSchema = new mongoose.Schema({
     },
     availableStock: {
         type: String,
-        require: true
+        require: true,
+        default: '0',
     },
     skuType: {
         type: String,

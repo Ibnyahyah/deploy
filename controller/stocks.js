@@ -1,31 +1,45 @@
 const Product = require('../model/product');
+const ProductCopy = require('../model/productCopy');
 const Stock = require('../model/stock');
 const JWT = require('jsonwebtoken')
 
 // create Stock
-// const createStock = async (req, res) => {
-//     const { stockName, products } = req.body;
-//     try {
-//         const token = req.headers.authorization.split(' ')[1];
-//         if (!token) return res.status(401).json({ message: 'unauthorized' });
-//         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
-//         if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
-//         // const prdcts = await Product.find({ productName: stockName });
-
-//         // const arr = [];
-
-//         // prdcts.find(function (prod) {
-//         //     if (new Date(prod.createdAt).getDay() == new Date().getDay()) {
-//         //         arr.push(prod);
-//         //     }
-//         // });
-//         // await Stock.create({ stockName, openingStock, closingStock, receipts, sales, damages, physicalCount, variance, products: arr });
-//         res.status(200).json({ message: 'Stock created successfully' })
-//     } catch (error) {
-//         res.status(500).json({ message: 'Something went wrong' });
-//         console.log(error);
-//     }
-// }
+const createProductCopy = async (req, res) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1];
+        if (!token) return res.status(401).json({ message: 'unauthorized' });
+        const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
+        const _products = await Product.find();
+        for (let i = 0; i < _products.length; i++) {
+            const product = _products[i];
+            const stock = await Stock.findOne({ productName: product.productName });
+            const copiedProducts = await ProductCopy.find();
+            const copied = copiedProducts.some(function (value) {
+                const prodDate = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate()
+                const todayDate = new Date().getFullYear() + ':' + new Date().getMonth() + ':' + new Date().getDate()
+                return prodDate == todayDate
+            })
+            if (copied) return res.status(301).json({ message: 'Can not copy products wait for 24hours.' });
+            if (stock) {
+                const newProd = await ProductCopy.create({ productBrand: product.productBrand, productName: product.productName, availableStock: product.availableStock, skuType: product.skuType, skuQty: product.skuQty, price: product.price })
+                stock.products.push(newProd);
+                await stock.save();
+                console.log(newProd);
+            } else {
+                let newStock = []
+                const newProd = await ProductCopy.create({ productBrand: product.productBrand, productName: product.productName, availableStock: product.availableStock, skuType: product.skuType, skuQty: product.skuQty, price: product.price })
+                newStock.push(newProd);
+                console.log(newProd);
+                Stock.create({ productName: productName, products: newStock });
+            }
+        }
+        res.status(200).json({ message: 'Product copied created successfully' })
+    } catch (error) {
+        res.status(500).json({ message: 'Something went wrong' });
+        console.log(error);
+    }
+}
 
 const getAllStocks = async (req, res) => {
     try {
@@ -58,7 +72,7 @@ const getTodayStocks = async (req, res) => {
 
 const updateStocks = async (req, res) => {
     const { id } = req.params;
-    const { availableStock, openingStock, closingStock, receipts, sales, damages, physicalCount, variance } = req.body;
+    const { productBrand, availableStock, openingStock, closingStock, receipts, sales, damages, physicalCount, variance } = req.body;
 
     try {
         const token = req.headers.authorization.split(' ')[1];
@@ -67,7 +81,9 @@ const updateStocks = async (req, res) => {
         if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
 
         const product = await Product.findByIdAndUpdate(id);
+        const copiedProduct = await ProductCopy.findByIdAndUpdate(id);
         if (!product) return res.status(404).json({ message: 'Product Not Found' });
+        product.productBrand = productBrand;
         product.availableStock = availableStock;
         product.openingStock = openingStock;
         product.closingStock = closingStock;
@@ -76,12 +92,22 @@ const updateStocks = async (req, res) => {
         product.sales = sales;
         product.physicalCount = physicalCount;
         product.variance = variance;
-        const updateStock = await Stock.findOne({ brandName: product.productName });
+        copiedProduct.productBrand = productBrand;
+        copiedProduct.availableStock = availableStock;
+        copiedProduct.openingStock = openingStock;
+        copiedProduct.closingStock = closingStock;
+        copiedProduct.receipts = receipts;
+        copiedProduct.damages = damages;
+        copiedProduct.sales = sales;
+        copiedProduct.physicalCount = physicalCount;
+        copiedProduct.variance = variance;
+        const updateStock = await Stock.findOne({ productName: product.productName });
         if (!updateStock) return res.status(404).json({ message: 'Stock Not Found' });
 
         updateStock.products.forEach(async (prod) => {
             console.log({ 'some': (prod._id == id), 'prod': prod._id, 'id': id });
             if (prod._id == id) {
+                prod.productBrand = productBrand;
                 prod.openingStock = openingStock;
                 prod.availableStock = availableStock;
                 prod.closingStock = closingStock;
@@ -92,9 +118,12 @@ const updateStocks = async (req, res) => {
                 prod.variance = variance;
 
                 await product.save();
+                await copiedProduct.save();
 
                 updateStock.products.splice(updateStock.products.indexOf(prod), 1, product);
                 await updateStock.save();
+
+
                 res.status(200).json({ message: 'Product updated successfully' });
             }
         });
@@ -121,4 +150,4 @@ const updateStocks = async (req, res) => {
 //     }
 // }
 
-module.exports = { getAllStocks, updateStocks, getTodayStocks };
+module.exports = { createProductCopy, getAllStocks, updateStocks, getTodayStocks };

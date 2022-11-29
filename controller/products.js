@@ -13,7 +13,7 @@ const createProducts = async (req, res) => {
         // const product_brand = await Product.findOne({ productBrand });
         // const product_name = await Product.findOne({ productName });
         // if (product_brand && product_name) return res.status(400).json({ message: 'Product already exists' });
-        const stock = await Stock.findOne({ brandName: productName });
+        const stock = await Stock.findOne({ productName: productName });
         if (stock) {
             const newProd = await Product.create({ productName, productBrand, skuType, skuQty, price });
             stock.products.push(newProd);
@@ -22,7 +22,7 @@ const createProducts = async (req, res) => {
             let newStock = []
             const newProd = await Product.create({ productName, productBrand, skuType, skuQty, price });
             newStock.push(newProd);
-            Stock.create({ brandName: productName, products: newStock });
+            Stock.create({ productName: productName, products: newStock });
         }
         console.log(stock);
 

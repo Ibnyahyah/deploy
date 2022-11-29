@@ -1,8 +1,8 @@
 const router = require('express').Router();
 
-const { createStock, getTodayStocks, getAllStocks, updateStocks, deleteStock } = require('../controller/stocks');
+const { createProductCopy, getTodayStocks, getAllStocks, updateStocks, deleteStock } = require('../controller/stocks');
 
-// router.post('/', (req, res) => createStock(req, res));
+router.post('/', (req, res) => createProductCopy(req, res));
 router.get('/', (req, res) => getAllStocks(req, res));
 router.get('/today', (req, res) => getTodayStocks(req, res));
 router.patch('/:id', (req, res) => updateStocks(req, res));

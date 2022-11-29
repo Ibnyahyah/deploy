@@ -1,5 +1,6 @@
 const Order = require('../model/order');
 const User = require('../model/user');
+const Product = require('../model/product');
 const Customer = require('../model/customer');
 const Agent = require('../model/agent');
 
@@ -26,7 +27,7 @@ const createOrder = async (req, res) => {
         const customerExist = await Customer.findOne({ customerPhone });
         if (!customerExist) {
             customer = await Customer.create({
-                agentCode : agent.agentCode,
+                agentCode: agent.agentCode,
                 customerEmail,
                 customerFullName,
                 customerPhone,
@@ -39,7 +40,7 @@ const createOrder = async (req, res) => {
             await agent.save();
         } else {
             customer = customerExist;
-            if(agent.agentCode != customer.agentCode && agent.customers.includes(agent.agentCode !== customer.agentCode)){
+            if (agent.agentCode != customer.agentCode && agent.customers.includes(agent.agentCode !== customer.agentCode)) {
                 agent.customers.push(customer);
                 await agent.save();
             }
@@ -83,7 +84,7 @@ const setStatus = async (req, res) => {
         const order = await Order.findByIdAndUpdate(id);
         order.status = status;
         await order.save();
-        res.status(200).json({message: 'Order Status set to '+ order.status});
+        res.status(200).json({ message: 'Order Status set to ' + order.status });
 
     } catch (error) {
         res.status(500).json({ message: 'Something went wrong' });
@@ -124,7 +125,7 @@ const getAgent = async (req, res) => {
     try {
         const agent = await Agent.findOne({ agentCode });
         if (!agent) return res.status(404).json({ message: 'Agent Not Found' });
-        const {orders, customers, ...agentInfo} = agent._doc;
+        const { orders, customers, ...agentInfo } = agent._doc;
         res.status(200).json(agentInfo);
     } catch (e) {
         res.status(500).json({ message: 'Something went wrong', error: e.message });
@@ -135,7 +136,7 @@ const getCustomer = async (req, res) => {
     try {
         const customer = await Customer.findOne({ customerPhone });
         if (!customer) return res.status(404).json({ message: 'Customer Not Found' });
-        const {customerOrders, ...customerInfo} = customer._doc;
+        const { customerOrders, ...customerInfo } = customer._doc;
         res.status(200).json(customerInfo);
     } catch (e) {
         res.status(500).json({ message: 'Something went wrong', error: e.message });
@@ -159,6 +160,8 @@ const getAgentOrders = async (req, res) => {
         res.status(500).json({ message: "Something went wrong" });
     }
 };
+
+
 
 module.exports = { createOrder, getOrder, getOrders, setStatus, getAgentOrders, getAgent, getCustomer };
 

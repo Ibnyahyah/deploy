@@ -9,6 +9,7 @@ const OrderRoute = require('./routes/order');
 const AdminRoute = require('./routes/admin');
 const ProductRoute = require('./routes/product');
 const StockRoute = require('./routes/stock');
+const analyticsRoute = require('./routes/analytics');
 
 // configuration
 const app = express();
@@ -21,6 +22,7 @@ app.use('/api/order', OrderRoute);
 app.use('/api/admin', AdminRoute);
 app.use('/api/product', ProductRoute);
 app.use('/api/stock', StockRoute);
+app.use('/api/', analyticsRoute);
 
 app.get('/', (req, res) => {
     res.send("<h1 style=\"text-align:center; color:seagreen;\">Server Running....</h1>")

@@ -1,4 +1,5 @@
 const Product = require('../model/product');
+const ProductCopy = require('../model/productCopy');
 const Stock = require('../model/stock');
 const JWT = require('jsonwebtoken')
 
@@ -99,6 +100,8 @@ const deleteProduct = async (req, res) => {
         if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
         const product = await Product.findByIdAndDelete(id);
         if (!product) return res.status(404).json({ message: 'Product Not Found' });
+        const copiedProduct = await ProductCopy.findByIdAndDelete(id);
+        if (!copiedProduct) return res.status(404).json({ message: 'Product Not Found' });
         const deleteStock = await Stock.findOne({ brandName: product.productName });
         if (!deleteStock) return res.status(404).json({ message: 'Stock Not Found' });
 

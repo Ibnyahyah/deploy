@@ -5,10 +5,22 @@ const Customer = require('../model/customer');
 const Agent = require('../model/agent');
 
 const JWT = require('jsonwebtoken')
+
+
 const getAnalytics = async (req, res) => {
     const { date } = req.params;
-    const todayDate = new Date(date).getFullYear() + ':' + new Date(date).getMonth() + ':' + new Date(date).getDate()
     try {
+        const _todayDate = date.split('_')[0];
+        const fromDate = date.split('_')[0];
+        const toDate = date.split('_')[1];
+        const todayDate = new Date(_todayDate).getFullYear() + ':' + new Date(_todayDate).getMonth() + ':' + new Date(_todayDate).getDate();
+
+        const _fromDate = new Date(fromDate).getDate();
+        const _toDate = new Date(toDate).getDate();
+
+        const _fromMonth = new Date(fromDate).getMonth();
+        const _toMonth = new Date(toDate).getMonth();
+
         const token = req.headers.authorization.split(" ")[1];
         if (!token) return res.status(401).json({ message: 'unauthorized' });
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
@@ -19,20 +31,27 @@ const getAnalytics = async (req, res) => {
         const ords = [];
         const cutms = [];
 
+        const dateChecker = (a, b, c) => a == todayDate || (b >= _fromDate && b < _toDate || b > _fromDate || b <= _toDate) && (c >= _fromMonth && c < _toMonth || c > _fromMonth && c <= _toMonth);
+
         orders.find(function (value) {
             const prodDate = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate()
-            if (prodDate == todayDate) {
+            const prdDate = new Date(value.createdAt).getDate()
+            const prdMonth = new Date(value.createdAt).getMonth()
+            console.log(dateChecker(prodDate, prdDate, prdMonth));
+            if (dateChecker(prodDate, prdDate, prdMonth)) {
                 ords.push(value);
             }
         });
         customers.find(function (value) {
-            const prodDate = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate();
-            if (prodDate == todayDate) {
+            const customerDate = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate()
+            const cusDate = new Date(value.createdAt).getDate()
+            const cusMonth = new Date(value.createdAt).getMonth()
+            if (dateChecker(customerDate, cusDate, cusMonth)) {
                 cutms.push(value);
             }
         });
-        let _amountOfSales = '';
-        let _noOfBagSold = '';
+        let _amountOfSales = '0';
+        let _noOfBagSold = '0';
         ords.forEach(function ({ products }) {
             _noOfBagSold = products.length;
             let total = 0;

@@ -63,7 +63,7 @@ const getAnalytics = async (req, res) => {
 
 
 
-        res.status(200).json({ amountOfSales: _amountOfSales, noOfBagSold: _noOfBagSold, noOfActiveCustomers: '0', noOfRegisteredCustomers: cutms.length, noOfOrders: ords.length });
+        res.status(200).json({ date: date, amountOfSales: _amountOfSales, noOfBagSold: _noOfBagSold, noOfActiveCustomers: '0', noOfRegisteredCustomers: cutms.length, noOfOrders: ords.length });
     } catch (err) {
         console.log(err)
         res.status(500).json({ message: "Something went wrong" });

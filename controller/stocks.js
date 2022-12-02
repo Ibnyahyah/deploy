@@ -23,18 +23,17 @@ const createProductCopy = async (req, res) => {
             if (copied) return res.status(301).json({ message: 'Can not copy products wait for 24hours.' });
             if (stock) {
                 const newProd = await ProductCopy.create({ productBrand: product.productBrand, productName: product.productName, availableStock: product.availableStock, skuType: product.skuType, skuQty: product.skuQty, price: product.price })
-                stock.products.push(newProd);
+                stock.products.push(newProd, 'newProd');
                 await stock.save();
-                console.log(newProd);
+                res.status(200).json({ message: 'Product copied created successfully' })
             } else {
                 let newStock = []
                 const newProd = await ProductCopy.create({ productBrand: product.productBrand, productName: product.productName, availableStock: product.availableStock, skuType: product.skuType, skuQty: product.skuQty, price: product.price })
                 newStock.push(newProd);
-                console.log(newProd);
-                Stock.create({ productName: productName, products: newStock });
+                await Stock.create({ productName: product.productName, products: newStock });
+                res.status(200).json({ message: 'Product copied created successfully' })
             }
         }
-        res.status(200).json({ message: 'Product copied created successfully' })
     } catch (error) {
         res.status(500).json({ message: 'Something went wrong' });
         console.log(error);
@@ -59,7 +58,7 @@ const getTodayStocks = async (req, res) => {
         stocks.map(stock => {
             stock.products.map(prod => {
                 if (new Date(prod.createdAt).getDate() == date.getDate() && new Date(prod.createdAt).getFullYear() == date.getFullYear()) {
-                    todayStocks.push(prod);
+                    todayStocks = stocks;
                 }
             })
         })

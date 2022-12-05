@@ -18,8 +18,8 @@ const getAnalytics = async (req, res) => {
         const _fromDate = new Date(fromDate).getDate() < 10 ? '0' + new Date(fromDate).getDate() : new Date(fromDate).getDate();
         const _toDate = new Date(toDate).getDate() < 10 ? '0' + new Date(toDate).getDate() : new Date(toDate).getDate();
 
-        const _fromMonth = Number(new Date(fromDate).getMonth() + 1) < 10 ? '0' + new Date(fromDate).getDate() : new Date(fromDate).getDate()
-        const _toMonth = Number(new Date(toDate).getMonth() + 1) < 10 ? '0' + new Date(toDate).getDate() : new Date(toDate).getDate()
+        const _fromMonth = new Date(fromDate).getMonth() < 10 ? '0' + new Date(fromDate).getMonth() : new Date(fromDate).getMonth()
+        const _toMonth = new Date(toDate).getMonth() < 10 ? '0' + new Date(toDate).getMonth() : new Date(fromDate).getMonth()
 
 
         console.log('from date', _fromDate, 'todate', _toDate, 'from month', _fromMonth, 'to month', _toMonth)
@@ -33,21 +33,24 @@ const getAnalytics = async (req, res) => {
         const ords = [];
         const cutms = [];
 
-        const dateChecker = (a, b, c) => a == todayDate || (b >= _fromDate && b < _toDate || b > _fromDate && b <= _toDate) && (c >= _fromMonth && c < _toMonth || c > _fromMonth && c <= _toMonth);
+        const dateChecker = (a, b, c) => a == todayDate || (b >= _fromDate && b < _toDate) || (b > _fromDate || b <= _toDate) && (c >= _fromMonth && c <= _toMonth) || (c > _fromMonth && c <= _toMonth);
 
         orders.find(function (value) {
             const prodDate = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate()
-            const prdDate = new Date(value.createdAt).getDate()
-            const prdMonth = new Date(value.createdAt).getMonth()
+            const prdDate = new Date(value.createdAt).getDate() < 10 ? '0' + new Date(value.createdAt).getDate() : new Date(value.createdAt).getDate()
+            const prdMonth = new Date(value.createdAt).getMonth() < 10 ? '0' + new Date(value.createdAt).getMonth() : new Date(value.createdAt).getMonth()
             console.log(dateChecker(prodDate, prdDate, prdMonth));
+            console.log(prodDate, prdDate, prdMonth);
             if (dateChecker(prodDate, prdDate, prdMonth)) {
                 ords.push(value);
             }
         });
         customers.find(function (value) {
             const customerDate = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate()
-            const cusDate = new Date(value.createdAt).getDate()
-            const cusMonth = new Date(value.createdAt).getMonth()
+            const cusDate = new Date(value.createdAt).getDate() < 10 ? '0' + new Date(value.createdAt).getDate() : new Date(value.createdAt).getDate()
+            const cusMonth = new Date(value.createdAt).getMonth() < 10 ? '0' + new Date(value.createdAt).getMonth() : new Date(value.createdAt).getMonth()
+            console.log(dateChecker(customerDate, cusDate, cusMonth));
+            console.log(customerDate, cusDate, cusMonth);
             if (dateChecker(customerDate, cusDate, cusMonth)) {
                 cutms.push(value);
             }

@@ -13,13 +13,15 @@ const getAnalytics = async (req, res) => {
         const _todayDate = date.split('_')[0];
         const fromDate = date.split('_')[0];
         const toDate = date.split('_')[1];
-        const todayDate = new Date(_todayDate).getFullYear() + ':' + Number(new Date(_todayDate).getMonth() + 1) + ':' + new Date(_todayDate).getDate();
+        const todayDate = new Date(_todayDate).getFullYear() + ':' + new Date(_todayDate).getMonth() + ':' + new Date(_todayDate).getDate();
 
+
+        console.log({ 'fromDate': fromDate, 'toDate': toDate });
         const _fromDate = new Date(fromDate).getDate() < 10 ? '0' + new Date(fromDate).getDate() : new Date(fromDate).getDate();
         const _toDate = new Date(toDate).getDate() < 10 ? '0' + new Date(toDate).getDate() : new Date(toDate).getDate();
 
         const _fromMonth = new Date(fromDate).getMonth() < 10 ? '0' + new Date(fromDate).getMonth() : new Date(fromDate).getMonth()
-        const _toMonth = new Date(toDate).getMonth() < 10 ? '0' + new Date(toDate).getMonth() : new Date(fromDate).getMonth()
+        const _toMonth = new Date(toDate).getMonth() < 10 ? '0' + new Date(toDate).getMonth() : new Date(toDate).getMonth()
 
 
         console.log('from date', _fromDate, 'todate', _toDate, 'from month', _fromMonth, 'to month', _toMonth)
@@ -33,14 +35,14 @@ const getAnalytics = async (req, res) => {
         const ords = [];
         const cutms = [];
 
-        const dateChecker = (a, b, c) => a == todayDate || (b >= _fromDate && b < _toDate) || (b > _fromDate || b <= _toDate) && (c >= _fromMonth && c <= _toMonth) || (c > _fromMonth && c <= _toMonth);
+        const dateChecker = (a, b, c) => a == todayDate || (((b >= _fromDate && b < _toDate) || (b > _fromDate || b <= _toDate)) && (c >= _fromMonth && c <= _toMonth));
 
         orders.find(function (value) {
             const prodDate = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate()
             const prdDate = new Date(value.createdAt).getDate() < 10 ? '0' + new Date(value.createdAt).getDate() : new Date(value.createdAt).getDate()
             const prdMonth = new Date(value.createdAt).getMonth() < 10 ? '0' + new Date(value.createdAt).getMonth() : new Date(value.createdAt).getMonth()
             console.log(dateChecker(prodDate, prdDate, prdMonth));
-            console.log(prodDate, prdDate, prdMonth);
+            console.log(prodDate, todayDate, prdDate, prdMonth);
             if (dateChecker(prodDate, prdDate, prdMonth)) {
                 ords.push(value);
             }
@@ -50,7 +52,7 @@ const getAnalytics = async (req, res) => {
             const cusDate = new Date(value.createdAt).getDate() < 10 ? '0' + new Date(value.createdAt).getDate() : new Date(value.createdAt).getDate()
             const cusMonth = new Date(value.createdAt).getMonth() < 10 ? '0' + new Date(value.createdAt).getMonth() : new Date(value.createdAt).getMonth()
             console.log(dateChecker(customerDate, cusDate, cusMonth));
-            console.log(customerDate, cusDate, cusMonth);
+            console.log(customerDate, todayDate, cusDate, cusMonth);
             if (dateChecker(customerDate, cusDate, cusMonth)) {
                 cutms.push(value);
             }

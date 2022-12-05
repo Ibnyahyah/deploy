@@ -35,7 +35,7 @@ const getAnalytics = async (req, res) => {
         const ords = [];
         const cutms = [];
 
-        const dateChecker = (a, b, c) => a == todayDate || (((b >= _fromDate && b < _toDate) || (b > _fromDate || b <= _toDate)) && (c >= _fromMonth && c <= _toMonth));
+        const dateChecker = (a, b, c) => a == todayDate || ((b >= _fromDate && b <= _toDate) && (c >= _fromMonth && c <= _toMonth));
 
         orders.find(function (value) {
             const prodDate = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate()

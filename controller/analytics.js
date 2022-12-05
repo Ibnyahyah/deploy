@@ -13,14 +13,16 @@ const getAnalytics = async (req, res) => {
         const _todayDate = date.split('_')[0];
         const fromDate = date.split('_')[0];
         const toDate = date.split('_')[1];
-        const todayDate = new Date(_todayDate).getFullYear() + ':' + new Date(_todayDate).getMonth() + ':' + new Date(_todayDate).getDate();
+        const todayDate = new Date(_todayDate).getFullYear() + ':' + Number(new Date(_todayDate).getMonth() + 1) + ':' + new Date(_todayDate).getDate();
 
-        const _fromDate = new Date(fromDate).getDate();
-        const _toDate = new Date(toDate).getDate();
+        const _fromDate = new Date(fromDate).getDate() < 10 ? '0' + new Date(fromDate).getDate() : new Date(fromDate).getDate();
+        const _toDate = new Date(toDate).getDate() < 10 ? '0' + new Date(toDate).getDate() : new Date(toDate).getDate();
 
-        const _fromMonth = new Date(fromDate).getMonth();
-        const _toMonth = new Date(toDate).getMonth();
+        const _fromMonth = Number(new Date(fromDate).getMonth() + 1) < 10 ? '0' + new Date(fromDate).getDate() : new Date(fromDate).getDate()
+        const _toMonth = Number(new Date(toDate).getMonth() + 1) < 10 ? '0' + new Date(toDate).getDate() : new Date(toDate).getDate()
 
+
+        console.log('from date', _fromDate, 'todate', _toDate, 'from month', _fromMonth, 'to month', _toMonth)
         const token = req.headers.authorization.split(" ")[1];
         if (!token) return res.status(401).json({ message: 'unauthorized' });
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
@@ -31,7 +33,7 @@ const getAnalytics = async (req, res) => {
         const ords = [];
         const cutms = [];
 
-        const dateChecker = (a, b, c) => a == todayDate || (b >= _fromDate && b < _toDate || b > _fromDate || b <= _toDate) && (c >= _fromMonth && c < _toMonth || c > _fromMonth && c <= _toMonth);
+        const dateChecker = (a, b, c) => a == todayDate || (b >= _fromDate && b < _toDate || b > _fromDate && b <= _toDate) && (c >= _fromMonth && c < _toMonth || c > _fromMonth && c <= _toMonth);
 
         orders.find(function (value) {
             const prodDate = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate()

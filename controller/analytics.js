@@ -35,14 +35,14 @@ const getAnalytics = async (req, res) => {
         const ords = [];
         const cutms = [];
 
-        const dateChecker = (a, b, c) => a == todayDate || ((b >= _fromDate && b <= _toDate) && (c >= _fromMonth && c <= _toMonth));
+        const dateChecker = (a, b, c) => !toDate ? a == todayDate : (b > _fromDate && b > _toDate ? ((b <= _fromDate || b >= _toDate) && (c >= _fromMonth && c <= _toMonth)) : (((b <= _fromDate && b >= _toDate) || (b >= _fromDate && b <= _toDate)) && (c >= _fromMonth && c <= _toMonth)));
 
         orders.find(function (value) {
             const prodDate = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate()
             const prdDate = new Date(value.createdAt).getDate() < 10 ? '0' + new Date(value.createdAt).getDate() : new Date(value.createdAt).getDate()
             const prdMonth = new Date(value.createdAt).getMonth() < 10 ? '0' + new Date(value.createdAt).getMonth() : new Date(value.createdAt).getMonth()
             console.log(dateChecker(prodDate, prdDate, prdMonth));
-            console.log(prodDate, todayDate, prdDate, prdMonth);
+            console.log({ 'date': prdDate, 'month': prdMonth }, 'orders');
             if (dateChecker(prodDate, prdDate, prdMonth)) {
                 ords.push(value);
             }
@@ -52,25 +52,25 @@ const getAnalytics = async (req, res) => {
             const cusDate = new Date(value.createdAt).getDate() < 10 ? '0' + new Date(value.createdAt).getDate() : new Date(value.createdAt).getDate()
             const cusMonth = new Date(value.createdAt).getMonth() < 10 ? '0' + new Date(value.createdAt).getMonth() : new Date(value.createdAt).getMonth()
             console.log(dateChecker(customerDate, cusDate, cusMonth));
-            console.log(customerDate, todayDate, cusDate, cusMonth);
+            console.log({ 'date': cusDate, 'month': cusMonth }, 'customer');
             if (dateChecker(customerDate, cusDate, cusMonth)) {
                 cutms.push(value);
             }
         });
-        let _amountOfSales = '0';
-        let _noOfBagSold = '0';
-        ords.forEach(function ({ products }) {
-            _noOfBagSold = products.length;
+        let _amountOfSales = 0;
+        let _noOfBagSold = 0;
+        ords.forEach(function ({ products, orderTotalPrice }) {
             let total = 0;
             products.forEach(function (value) {
-                total += Number(value.orderTotalPrice);
+                _noOfBagSold += value.orderQuantity;
             })
-            _amountOfSales = total;
+            total += Number(orderTotalPrice);
+            _amountOfSales += total;
         });
 
 
-
         res.status(200).json({ date: date, amountOfSales: _amountOfSales, noOfBagSold: _noOfBagSold, noOfActiveCustomers: '0', noOfRegisteredCustomers: cutms.length, noOfOrders: ords.length });
+        // res.status(200).json({ ords: ords });
     } catch (err) {
         console.log(err)
         res.status(500).json({ message: "Something went wrong" });

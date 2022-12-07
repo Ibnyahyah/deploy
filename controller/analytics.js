@@ -37,7 +37,7 @@ const getAnalytics = async (req, res) => {
 
         // const dateChecker = (a, b, c) => !toDate ? a == todayDate : (b > _fromDate && b > _toDate ? ((b <= _fromDate || b >= _toDate) && (c >= _fromMonth && c <= _toMonth)) : (((b <= _fromDate && b >= _toDate) || (b >= _fromDate && b <= _toDate)) && (c >= _fromMonth && c <= _toMonth)));
         // const dateChecker = (a, b, c) => !toDate ? a == todayDate : ((b >= _fromDate || b <= _toDate || (b <= _fromDate || b >= _toDate)) && (b >= _fromDate || b <= _toDate)) && (c >= _fromMonth && c <= _toMonth);
-        const dateChecker = (a, b, c) => !toDate ? a == todayDate : (b > _fromDate ? ((b > _fromDate || b > _toDate || b < _toDate) && (c >= _fromMonth && c <= _toMonth)) : ((b >= _fromDate && b <= _toDate) && (c >= _fromMonth && c <= _toMonth)));
+        const dateChecker = (a, b, c) => toDate == undefined ? a == todayDate : ((b >= _fromDate && b >= _toDate) || b <= _toDate ? (((b >= _fromDate || b <= _fromDate) && (b >= _toDate || b <= _toDate) || (b >= _fromDate && b <= _toDate)) && (c >= _fromMonth && c <= _toMonth)) : ((b >= _fromDate && b <= _toDate) && (c >= _fromMonth && c <= _toMonth)));
 
         orders.find(function (value) {
             const prodDate = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate()

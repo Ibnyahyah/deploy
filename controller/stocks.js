@@ -23,7 +23,7 @@ const createProductCopy = async (req, res) => {
             if (copied) return res.status(301).json({ message: 'Can not copy products wait for 24hours.' });
             if (stock) {
                 const newProd = await ProductCopy.create({ productBrand: product.productBrand, productName: product.productName, availableStock: product.availableStock, skuType: product.skuType, skuQty: product.skuQty, price: product.price })
-                stock.products.push(newProd, 'newProd');
+                stock.products.push(newProd);
                 await stock.save();
                 res.status(200).json({ message: 'Product copied created successfully' })
             } else {
@@ -52,15 +52,27 @@ const getAllStocks = async (req, res) => {
 
 const getTodayStocks = async (req, res) => {
     const date = new Date()
-    let todayStocks = [];
     try {
         const stocks = await Stock.find();
+        let todayStocks = [];
+        let _stocks = {
+            _id: '',
+            productName: '',
+            products: [],
+        };
+        let newStocks = [];
         stocks.map(stock => {
             stock.products.map(prod => {
+                _stocks = {
+                    _id: stock._id,
+                    productName: stock.productName,
+                    products: [],
+                };
                 if (new Date(prod.createdAt).getDate() == date.getDate() && new Date(prod.createdAt).getFullYear() == date.getFullYear()) {
-                    todayStocks = stocks;
+                    _stocks.products.push(prod);
                 }
             })
+            todayStocks.push({ ..._stocks });
         })
         res.status(200).json(todayStocks);
     } catch (error) {

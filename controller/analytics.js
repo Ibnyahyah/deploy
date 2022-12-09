@@ -35,6 +35,7 @@ const getAnalytics = async (req, res) => {
         const ords = [];
         const cutms = [];
 
+        // console.log(new Date(fromDate).getDay());
         // const dateChecker = (a, b, c) => !toDate ? a == todayDate : (b > _fromDate && b > _toDate ? ((b <= _fromDate || b >= _toDate) && (c >= _fromMonth && c <= _toMonth)) : (((b <= _fromDate && b >= _toDate) || (b >= _fromDate && b <= _toDate)) && (c >= _fromMonth && c <= _toMonth)));
         // const dateChecker = (a, b, c) => !toDate ? a == todayDate : ((b >= _fromDate || b <= _toDate || (b <= _fromDate || b >= _toDate)) && (b >= _fromDate || b <= _toDate)) && (c >= _fromMonth && c <= _toMonth);
         const dateChecker = (a, b, c) => toDate == undefined ? a == todayDate : ((b >= _fromDate && b >= _toDate) || b <= _toDate ? (((b >= _fromDate || b <= _fromDate) && (b >= _toDate || b <= _toDate) || (b >= _fromDate && b <= _toDate)) && (c >= _fromMonth && c <= _toMonth)) : ((b >= _fromDate && b <= _toDate) && (c >= _fromMonth && c <= _toMonth)));

@@ -14,7 +14,7 @@ const createProducts = async (req, res) => {
         // const product_brand = await Product.findOne({ productBrand });
         // const product_name = await Product.findOne({ productName });
         // if (product_brand && product_name) return res.status(400).json({ message: 'Product already exists' });
-        const stock = await Stock.findOne({ productName: productName });
+        const stock = await Stock.findOne({ productName: productName.toLowerCase().trim() });
         if (stock) {
             const newProd = await Product.create({ productName, productBrand, skuType, skuQty, price });
             stock.products.push(newProd);

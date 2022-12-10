@@ -28,52 +28,53 @@ const getAnalytics = async (req, res) => {
         const token = req.headers.authorization.split(" ")[1];
         if (!token) return res.status(401).json({ message: 'unauthorized' });
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
-        const orders = await Order.find();
-        const customers = await Customer.find();
+        if (decoded.data.role == 'admin' || decoded.data.role == 'sub-admin') {
+            const orders = await Order.find();
+            const customers = await Customer.find();
 
-        const ords = [];
-        const cutms = [];
+            const ords = [];
+            const cutms = [];
 
-        // console.log(new Date(fromDate).getDay());
-        // const dateChecker = (a, b, c) => !toDate ? a == todayDate : (b > _fromDate && b > _toDate ? ((b <= _fromDate || b >= _toDate) && (c >= _fromMonth && c <= _toMonth)) : (((b <= _fromDate && b >= _toDate) || (b >= _fromDate && b <= _toDate)) && (c >= _fromMonth && c <= _toMonth)));
-        // const dateChecker = (a, b, c) => !toDate ? a == todayDate : ((b >= _fromDate || b <= _toDate || (b <= _fromDate || b >= _toDate)) && (b >= _fromDate || b <= _toDate)) && (c >= _fromMonth && c <= _toMonth);
-        const dateChecker = (a, b, c) => toDate == undefined ? a == todayDate : ((b >= _fromDate && b >= _toDate) || b <= _toDate ? (((b >= _fromDate || b <= _fromDate) && (b >= _toDate || b <= _toDate) || (b >= _fromDate && b <= _toDate)) && (c >= _fromMonth && c <= _toMonth)) : ((b >= _fromDate && b <= _toDate) && (c >= _fromMonth && c <= _toMonth)));
+            // console.log(new Date(fromDate).getDay());
+            // const dateChecker = (a, b, c) => !toDate ? a == todayDate : (b > _fromDate && b > _toDate ? ((b <= _fromDate || b >= _toDate) && (c >= _fromMonth && c <= _toMonth)) : (((b <= _fromDate && b >= _toDate) || (b >= _fromDate && b <= _toDate)) && (c >= _fromMonth && c <= _toMonth)));
+            // const dateChecker = (a, b, c) => !toDate ? a == todayDate : ((b >= _fromDate || b <= _toDate || (b <= _fromDate || b >= _toDate)) && (b >= _fromDate || b <= _toDate)) && (c >= _fromMonth && c <= _toMonth);
+            const dateChecker = (a, b, c) => toDate == undefined ? a == todayDate : ((b >= _fromDate && b >= _toDate) || b <= _toDate ? (((b >= _fromDate || b <= _fromDate) && (b >= _toDate || b <= _toDate) || (b >= _fromDate && b <= _toDate)) && (c >= _fromMonth && c <= _toMonth)) : ((b >= _fromDate && b <= _toDate) && (c >= _fromMonth && c <= _toMonth)));
 
-        orders.find(function (value) {
-            const prodDate = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate()
-            const prdDate = new Date(value.createdAt).getDate() < 10 ? '0' + new Date(value.createdAt).getDate() : new Date(value.createdAt).getDate()
-            const prdMonth = new Date(value.createdAt).getMonth() < 10 ? '0' + new Date(value.createdAt).getMonth() : new Date(value.createdAt).getMonth()
-            console.log(dateChecker(prodDate, prdDate, prdMonth));
-            console.log({ 'date': prdDate, 'month': prdMonth }, 'orders');
-            if (dateChecker(prodDate, prdDate, prdMonth)) {
-                ords.push(value);
-            }
-        });
-        customers.find(function (value) {
-            const customerDate = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate()
-            const cusDate = new Date(value.createdAt).getDate() < 10 ? '0' + new Date(value.createdAt).getDate() : new Date(value.createdAt).getDate()
-            const cusMonth = new Date(value.createdAt).getMonth() < 10 ? '0' + new Date(value.createdAt).getMonth() : new Date(value.createdAt).getMonth()
-            console.log(dateChecker(customerDate, cusDate, cusMonth));
-            console.log({ 'date': cusDate, 'month': cusMonth }, 'customer');
-            if (dateChecker(customerDate, cusDate, cusMonth)) {
-                cutms.push(value);
-            }
-        });
-        let _amountOfSales = 0;
-        let _noOfBagSold = 0;
-        ords.forEach(function ({ products, orderTotalPrice }) {
-            let total = 0;
-            products.forEach(function (value) {
-                _noOfBagSold += value.orderQuantity;
-            })
-            total += Number(orderTotalPrice);
-            _amountOfSales += total;
-        });
+            orders.find(function (value) {
+                const prodDate = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate()
+                const prdDate = new Date(value.createdAt).getDate() < 10 ? '0' + new Date(value.createdAt).getDate() : new Date(value.createdAt).getDate()
+                const prdMonth = new Date(value.createdAt).getMonth() < 10 ? '0' + new Date(value.createdAt).getMonth() : new Date(value.createdAt).getMonth()
+                console.log(dateChecker(prodDate, prdDate, prdMonth));
+                console.log({ 'date': prdDate, 'month': prdMonth }, 'orders');
+                if (dateChecker(prodDate, prdDate, prdMonth)) {
+                    ords.push(value);
+                }
+            });
+            customers.find(function (value) {
+                const customerDate = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate()
+                const cusDate = new Date(value.createdAt).getDate() < 10 ? '0' + new Date(value.createdAt).getDate() : new Date(value.createdAt).getDate()
+                const cusMonth = new Date(value.createdAt).getMonth() < 10 ? '0' + new Date(value.createdAt).getMonth() : new Date(value.createdAt).getMonth()
+                console.log(dateChecker(customerDate, cusDate, cusMonth));
+                console.log({ 'date': cusDate, 'month': cusMonth }, 'customer');
+                if (dateChecker(customerDate, cusDate, cusMonth)) {
+                    cutms.push(value);
+                }
+            });
+            let _amountOfSales = 0;
+            let _noOfBagSold = 0;
+            ords.forEach(function ({ products, orderTotalPrice }) {
+                let total = 0;
+                products.forEach(function (value) {
+                    _noOfBagSold += value.orderQuantity;
+                })
+                total += Number(orderTotalPrice);
+                _amountOfSales += total;
+            });
 
 
-        res.status(200).json({ date: date, amountOfSales: _amountOfSales, noOfBagSold: _noOfBagSold, noOfActiveCustomers: '0', noOfRegisteredCustomers: cutms.length, noOfOrders: ords.length });
-        // res.status(200).json({ ords: ords });
+            res.status(200).json({ date: date, amountOfSales: _amountOfSales, noOfBagSold: _noOfBagSold, noOfActiveCustomers: '0', noOfRegisteredCustomers: cutms.length, noOfOrders: ords.length });
+            // res.status(200).json({ ords: ords });
+        } else { return res.status(401).json({ message: 'unauthorized' }); }
     } catch (err) {
         console.log(err)
         res.status(500).json({ message: "Something went wrong" });

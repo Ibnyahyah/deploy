@@ -80,11 +80,15 @@ const setStatus = async (req, res) => {
         const token = req.headers.authorization.split(' ')[1];
         if (!token) return res.status(401).json({ message: 'unauthorized' });
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
-        const order = await Order.findByIdAndUpdate(id);
-        order.status = status;
-        await order.save();
-        res.status(200).json({ message: 'Order Status set to ' + order.status });
+        if (decoded.data.role == 'admin' || decoded.data.role == 'sub-admin' || decoded.data.role == 'orders-admin') {
+            const order = await Order.findByIdAndUpdate(id);
+            order.status = status;
+            await order.save();
+            res.status(200).json({ message: 'Order Status set to ' + order.status });
+        }
+        else {
+            return res.status(401).json({ message: 'unauthorized' });
+        }
 
     } catch (error) {
         res.status(500).json({ message: 'Something went wrong' });
@@ -97,10 +101,11 @@ const getOrder = async (req, res) => {
         const token = req.headers.authorization.split(' ')[1];
         if (!token) return res.status(401).json({ message: 'unauthorized' });
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
-        const order = await Order.findById(id);
-        if (!order) return res.status(401).json({ message: 'Order Not Found' });
-        res.status(200).json(order);
+        if (decoded.data.role == 'admin' || decoded.data.role == 'sub-admin' || decoded.data.role == 'orders-admin') {
+            const order = await Order.findById(id);
+            if (!order) return res.status(401).json({ message: 'Order Not Found' });
+            res.status(200).json(order);
+        } else { return res.status(401).json({ message: 'unauthorized' }); }
     } catch (error) {
         res.status(500).json({ message: 'Something went wrong' });
     }
@@ -111,9 +116,10 @@ const getOrders = async (req, res) => {
         const token = req.headers.authorization.split(' ')[1];
         if (!token) return res.status(401).json({ message: 'unauthorized' });
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
-        const orders = await Order.find();
-        res.status(200).json(orders);
+        if (decoded.data.role == 'admin' || decoded.data.role == 'sub-admin' || decoded.data.role == 'orders-admin') {
+            const orders = await Order.find();
+            res.status(200).json(orders);
+        } else { return res.status(401).json({ message: 'unauthorized' }); }
     } catch (error) {
         console.log(error)
         res.status(500).json({ message: 'Something went wrong' });
@@ -149,12 +155,13 @@ const getAgentOrders = async (req, res) => {
         const token = req.headers.authorization.split(" ")[1];
         if (!token) return res.status(401).json({ message: 'unauthorized' });
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
-        const agent = await Agent.findOne(req.body);
-        if (!agent)
-            return res.status(404).json({ message: "Agent not found" });
-        const orders = await Order.find({ agentCode: agent.agentCode });
-        res.status(200).json(orders);
+        if (decoded.data.role == 'admin' || decoded.data.role == 'sub-admin' || decoded.data.role == 'orders-admin') {
+            const agent = await Agent.findOne(req.body);
+            if (!agent)
+                return res.status(404).json({ message: "Agent not found" });
+            const orders = await Order.find({ agentCode: agent.agentCode });
+            res.status(200).json(orders);
+        } else { return res.status(401).json({ message: 'unauthorized' }); }
     } catch (err) {
         console.log(err)
         res.status(500).json({ message: "Something went wrong" });

@@ -36,22 +36,23 @@ const createAgent = async (req, res) => {
     try {
         if (!token) return res.status(401).json({ message: 'unauthorized' });
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
-        const emailExist = await Agent.findOne({ agentEmail });
-        if (emailExist) return res.status(400).json({ message: 'agent already exist with this email' });
-        const phoneExist = await Agent.findOne({ phone });
-        if (phoneExist) return res.status(400).json({ message: 'agent already exist with this phone' });
-        const agentDocs = await Agent.countDocuments();
-        const agentCode = "AI" + nearestLandmark.slice(0, 2) + dates.toString().slice(2, 4) + "00" + agentDocs;
-        newAgent = await Agent.create({ agentEmail, agentFirstName, agentLastName, phone, agentCode: agentCode.trim().toUpperCase(), nearestLandmark, gender });
-        res.status(201).json({ message: 'Agent created successfully', agentCode: newAgent.agentCode });
+        if (decoded.data.role == 'admin' || decoded.data.role == 'sub-admin') {
+            const emailExist = await Agent.findOne({ agentEmail });
+            if (emailExist) return res.status(400).json({ message: 'agent already exist with this email' });
+            const phoneExist = await Agent.findOne({ phone });
+            if (phoneExist) return res.status(400).json({ message: 'agent already exist with this phone' });
+            const agentDocs = await Agent.countDocuments();
+            const agentCode = "AI" + nearestLandmark.slice(0, 2) + dates.toString().slice(2, 4) + "00" + agentDocs;
+            newAgent = await Agent.create({ agentEmail, agentFirstName, agentLastName, phone, agentCode: agentCode.trim().toUpperCase(), nearestLandmark, gender });
+            res.status(201).json({ message: 'Agent created successfully', agentCode: newAgent.agentCode });
+        } else { return res.status(401).json({ message: 'unauthorized' }); }
     } catch (e) {
         res.status(500).json({ message: 'Something went wrong', error: e.message });
     }
 }
 
 const getAgent = async (req, res) => {
-    const  {agentCode} = req.params;
+    const { agentCode } = req.params;
     console.log(req.params);
     // const token = req.headers.authorization.split(' ')[1];
     try {
@@ -70,10 +71,11 @@ const getAgents = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
-        const agent = await Agent.find();
-        if (!agent) return res.status(404).json({ message: 'Agent Not Found' });
-        res.status(200).json(agent);
+        if (decoded.data.role == 'admin' || decoded.data.role == 'sub-admin' || decoded.data.role == 'agent-admin') {
+            const agent = await Agent.find();
+            if (!agent) return res.status(404).json({ message: 'Agent Not Found' });
+            res.status(200).json(agent);
+        } else { return res.status(401).json({ message: 'unauthorized' }); }
     } catch (e) {
         res.status(500).json({ message: 'Something went wrong', error: e.message });
     }
@@ -83,9 +85,10 @@ const getCustomers = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
-        const customers = await Customer.find();
-        res.status(200).json(customers);
+        if (decoded.data.role == 'admin' || decoded.data.role == 'sub-admin' || decoded.data.role == 'inventory-admin') {
+            const customers = await Customer.find();
+            res.status(200).json(customers);
+        } else { return res.status(401).json({ message: 'unauthorized' }); }
     } catch (error) {
         res.status(500).json({ message: 'Something went wrong' });
         console.log(error)
@@ -97,10 +100,11 @@ const getCustomer = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
-        const customer = await Customer.findById(id);
-        if (!customer) return res.status(404).json({ message: 'user not found' });
-        res.status(200).json(customer);
+        if (decoded.data.role == 'admin' || decoded.data.role == 'sub-admin' || decoded.data.role == 'inventory-admin') {
+            const customer = await Customer.findById(id);
+            if (!customer) return res.status(404).json({ message: 'user not found' });
+            res.status(200).json(customer);
+        } else { return res.status(401).json({ message: 'unauthorized' }); }
     } catch (error) {
         res.status(500).json({ message: 'Something went wrong' });
     }
@@ -110,10 +114,11 @@ const getCustomerOrder = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
-        const customer = await Customer.findById(id);
-        if (!customer) return res.status(404).json({ message: 'user not found' });
-        res.status(200).json(customer.customerOrders);
+        if (decoded.data.role == 'admin' || decoded.data.role == 'sub-admin' || decoded.data.role == 'inventory-admin' || decoded.data.role == 'orders-admin') {
+            const customer = await Customer.findById(id);
+            if (!customer) return res.status(404).json({ message: 'user not found' });
+            res.status(200).json(customer.customerOrders);
+        } else { return res.status(401).json({ message: 'unauthorized' }); }
     } catch (error) {
         res.status(500).json({ message: 'Something went wrong' });
     }

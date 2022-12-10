@@ -10,6 +10,7 @@ const AdminRoute = require('./routes/admin');
 const ProductRoute = require('./routes/product');
 const StockRoute = require('./routes/stock');
 const analyticsRoute = require('./routes/analytics');
+const usersRoute = require('./routes/user');
 
 // configuration
 const app = express();
@@ -20,6 +21,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/api/order', OrderRoute);
 app.use('/api/admin', AdminRoute);
+app.use('/api/admin/user', usersRoute);
 app.use('/api/product', ProductRoute);
 app.use('/api/stock', StockRoute);
 app.use('/api/', analyticsRoute);

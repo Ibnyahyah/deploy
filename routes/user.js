@@ -1,5 +1,5 @@
-const { getAdmin, getAllAdmins, adminSignIn, updateAdmin, registerAdmin, } = require('../controller/user');
 const express = require('express');
+const { getAdmin, getAllAdmins, adminSignIn, updateAdmin, registerAdmin, } = require('../controller/user');
 
 const router = express.Router();
 

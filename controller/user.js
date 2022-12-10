@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const JWT = require('jsonwebtoken');
+require('dotenv').config();
 
 const User = require('../model/user');
 
@@ -14,27 +15,26 @@ function generateToken(data) {
 
 const registerAdmin = async (req, res) => {
     let newUser;
-    const { name, email, phone, nearestLandmark, gender, agentCode, password, role } = req.body;
+    const { name, email, phone, gender, password, role } = req.body;
     try {
-        const _token = req.headers.authorization.split(' ')[1];
-        if (!_token) return res.status(401).json({ message: 'unauthorized' });
-        const decoded = JWT.verify(_token, process.env.ACCESS_TOKEN_SECRET);
+        const token = req.headers.authorization.split(' ')[1];
+        if (!token) return res.status(401).json({ message: 'unauthorized' });
+        const decoded = JWT.decode(token, process.env.ACCESS_TOKEN_SECRET);
         if (decoded.data.role == 'admin' || decoded.data.role == 'sub-admin') {
-
             const existingUser = await User.findOne({ email });
             if (existingUser) return res.status(400).json({ message: 'user already exist' });
             const isFirstUser = await User.countDocuments() === 0;
-            const role = isFirstUser ? 'admin' : 'sub-admin';
+            const _role = isFirstUser ? 'admin' : role;
             const salt = bcrypt.genSaltSync(10);
             const hashedPassword = bcrypt.hashSync(password, salt)
             if (isFirstUser) {
                 newUser = await User.create({ email, name, phone, password: hashedPassword, role: 'admin' });
             }
-            newUser = await User.create({ email, name, phone, agentCode, nearestLandmark, gender, password: hashedPassword, role });
-            const token = generateToken(newUser);
-            res.status(201).json({ message: 'user created successfully', token: token, user: newUser });
+            newUser = await User.create({ email, name, phone, gender, password: hashedPassword, role: _role.toLowerCase() });
+            res.status(201).json({ message: 'Admin details are:', password: password, email: newUser.email });
         } else { return res.status(401).json({ message: 'unauthorized' }); }
     } catch (e) {
+        console.log(e);
         res.status(500).json({ message: 'Something went wrong', error: e.message });
     }
 };
@@ -81,7 +81,7 @@ const getAllAdmins = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        if (decoded.role == 'admin' || decoded.role == 'sub-admin') {
+        if (decoded.data.role == 'admin' || decoded.data.role == 'sub-admin') {
             const users = await User.find();
             res.status(200).json(users);
         } else { return res.status(401).json({ message: 'unauthorized' }); }

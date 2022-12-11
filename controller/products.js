@@ -103,14 +103,14 @@ const deleteProduct = async (req, res) => {
         if (decoded.data.role == 'admin' || decoded.data.role == 'sub-admin' || decoded.data.role == 'inventory-admin') {
             const product = await Product.findByIdAndDelete(id);
             if (!product) return res.status(404).json({ message: 'Product Not Found' });
-            const copiedProduct = await ProductCopy.findByIdAndDelete(id);
+            const copiedProduct = await ProductCopy.findOneAndDelete({ productID: id });
             if (!copiedProduct) return res.status(404).json({ message: 'Product Not Found' });
             const deleteStock = await Stock.findOne({ brandName: product.productName });
             if (!deleteStock) return res.status(404).json({ message: 'Stock Not Found' });
 
             deleteStock.products.forEach(async (prod) => {
-                console.log({ 'some': (prod._id == id), 'prod': prod._id, 'id': id });
-                if (prod._id == id) {
+                console.log({ 'some': (prod.productID == id), 'prod': prod.productID, 'id': id });
+                if (prod.productID == id) {
                     deleteStock.products.splice(deleteStock.products.indexOf(prod), 1);
                     await deleteStock.save();
                     res.status(200).json({ message: 'Product deleted successfully' });
@@ -119,7 +119,6 @@ const deleteProduct = async (req, res) => {
         } else { return res.status(401).json({ message: 'unauthorized' }); }
     } catch (error) {
         res.status(500).json({ message: 'Something went wrong' });
-        console.log(error);
     }
 }
 

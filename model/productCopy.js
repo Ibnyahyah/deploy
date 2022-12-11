@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const productCopySchema = new mongoose.Schema({
+    productID: {
+        type: String,
+        require: true
+    },
     productName: {
         type: String,
         require: true

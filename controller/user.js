@@ -31,7 +31,7 @@ const registerAdmin = async (req, res) => {
                 newUser = await User.create({ email, name, phone, password: hashedPassword, role: 'admin' });
             }
             newUser = await User.create({ email, name, phone, gender, password: hashedPassword, role: _role.toLowerCase() });
-            res.status(201).json({ message: 'Admin details are:', password: password, email: newUser.email });
+            res.status(201).json({ message: 'Admin details are:', password: password, email: newUser.email, name: newUser.name, role: newUser.role});
         } else { return res.status(401).json({ message: 'unauthorized' }); }
     } catch (e) {
         console.log(e);

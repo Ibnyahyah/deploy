@@ -102,6 +102,7 @@ const getAdmin = async (req, res) => {
             res.status(200).json(user);
         } else { return res.status(401).json({ message: 'unauthorized' }); }
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: 'Something went wrong' });
     }
 }

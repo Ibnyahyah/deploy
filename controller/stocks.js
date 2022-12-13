@@ -104,11 +104,15 @@ const getTodayStocks = async (req, res) => {
                     productName: stock.productName,
                     products: [],
                 };
-                stock.products.map(prod => {
-                    if (new Date(prod.createdAt).getDate() == date.getDate() && new Date(prod.createdAt).getFullYear() == date.getFullYear()) {
-                        _stocks.products.push(prod);
-                    }
-                })
+                console.log(stock.products)
+                if (stock.products.length > 0) {
+
+                    stock.products.map(prod => {
+                        if (new Date(prod.createdAt).getDate() == date.getDate() && new Date(prod.createdAt).getFullYear() == date.getFullYear()) {
+                            _stocks.products.push(prod);
+                        }
+                    })
+                }
                 todayStocks.push({ ..._stocks });
             })
             res.status(200).json(todayStocks);

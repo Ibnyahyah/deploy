@@ -97,7 +97,7 @@ const getAdmin = async (req, res) => {
         const token = req.headers.authorization.split(' ')[1];
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
         if (decoded.data.role == 'admin' || decoded.data.role == 'sub-admin') {
-            const user = await User.findById({ id });
+            const user = await User.findById(id);
             if (!user) return res.status(404).json({ message: 'user not found' });
             res.status(200).json(user);
         } else { return res.status(401).json({ message: 'unauthorized' }); }

@@ -130,12 +130,11 @@ const updateStocks = async (req, res) => {
         const token = req.headers.authorization.split(' ')[1];
         if (!token) return res.status(401).json({ message: 'unauthorized' });
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
-
         if (decoded.data.role.toLowerCase() == 'admin' || decoded.data.role.toLowerCase() == 'sub-admin' || decoded.data.role.toLowerCase() == 'inventory-admin') {
 
             const product = await Product.findByIdAndUpdate(id);
             const copiedProduct = await ProductCopy.findOneAndUpdate({ productID: id });
-            // if (!copiedProduct) return res.status(404).json({ message: 'Product Not Found' });
+            if (!product) return res.status(404).json({ message: 'Product Not Found' });
             // product.productBrand = productBrand;
             product.availableStock = availableStock;
             product.openingStock = openingStock;

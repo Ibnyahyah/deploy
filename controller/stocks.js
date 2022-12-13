@@ -69,7 +69,6 @@ const getAllStocks = async (req, res) => {
         const token = req.headers.authorization.split(' ')[1];
         if (!token) return res.status(401).json({ message: 'unauthorized' });
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        i
         if (decoded.data.role.toLowerCase() == 'admin' || decoded.data.role.toLowerCase() == 'sub-admin' || decoded.data.role.toLowerCase() == 'inventory-admin') {
             const stocks = await Stock.find();
             res.status(200).json(stocks);
@@ -77,6 +76,7 @@ const getAllStocks = async (req, res) => {
             return res.status(401).json({ message: 'unauthorized' });
         }
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: 'Something went wrong' });
     }
 }
@@ -118,6 +118,7 @@ const getTodayStocks = async (req, res) => {
         }
     } catch (error) {
         res.status(500).json({ message: 'Something went wrong' });
+        console.log(error)
     }
 }
 
@@ -132,34 +133,36 @@ const updateStocks = async (req, res) => {
 
         if (decoded.data.role.toLowerCase() == 'admin' || decoded.data.role.toLowerCase() == 'sub-admin' || decoded.data.role.toLowerCase() == 'inventory-admin') {
 
-            // const product = await Product.findByIdAndUpdate(id);
+            const product = await Product.findByIdAndUpdate(id);
             const copiedProduct = await ProductCopy.findOneAndUpdate({ productID: id });
-            if (!copiedProduct) return res.status(404).json({ message: 'Product Not Found' });
+            // if (!copiedProduct) return res.status(404).json({ message: 'Product Not Found' });
             // product.productBrand = productBrand;
-            // product.availableStock = availableStock;
-            // product.openingStock = openingStock;
-            // product.closingStock = closingStock;
-            // product.receipts = receipts;
-            // product.damages = damages;
-            // product.sales = sales;
-            // product.physicalCount = physicalCount;
-            // product.variance = variance;
-            copiedProduct.productBrand = productBrand
-            copiedProduct.availableStock = availableStock;
-            copiedProduct.openingStock = openingStock;
-            copiedProduct.closingStock = closingStock;
-            copiedProduct.receipts = receipts;
-            copiedProduct.damages = damages;
-            copiedProduct.sales = sales;
-            copiedProduct.physicalCount = physicalCount;
-            copiedProduct.variance = variance;
-            const updateStock = await Stock.findOne({ productName: copiedProduct.productName });
+            product.availableStock = availableStock;
+            product.openingStock = openingStock;
+            product.closingStock = closingStock;
+            product.receipts = receipts;
+            product.damages = damages;
+            product.sales = sales;
+            product.physicalCount = physicalCount;
+            product.variance = variance;
+            if (copiedProduct) {
+                // copiedProduct.productBrand = productBrand
+                copiedProduct.availableStock = availableStock;
+                copiedProduct.openingStock = openingStock;
+                copiedProduct.closingStock = closingStock;
+                copiedProduct.receipts = receipts;
+                copiedProduct.damages = damages;
+                copiedProduct.sales = sales;
+                copiedProduct.physicalCount = physicalCount;
+                copiedProduct.variance = variance;
+            }
+            const updateStock = await Stock.findOne({ productName: product.productName });
             if (!updateStock) return res.status(404).json({ message: 'Stock Not Found' });
 
             updateStock.products.forEach(async (prod) => {
                 console.log({ 'some': (prod.productID == id), 'prod': prod._id, 'id': id });
-                if (prod.productID == id) {
-                    prod.productBrand = productBrand;
+                if (prod.productID == id || prod._id == id) {
+                    // prod.productBrand = productBrand;
                     prod.openingStock = openingStock;
                     prod.availableStock = availableStock;
                     prod.closingStock = closingStock;
@@ -169,8 +172,8 @@ const updateStocks = async (req, res) => {
                     prod.physicalCount = physicalCount;
                     prod.variance = variance;
 
-                    // await product.save();
-                    await copiedProduct.save();
+                    await product.save();
+                    if (copiedProduct) await copiedProduct.save();
 
                     updateStock.products.splice(updateStock.products.indexOf(prod), 1, copiedProduct);
                     await updateStock.save();
@@ -183,6 +186,7 @@ const updateStocks = async (req, res) => {
             return res.status(401).json({ message: 'unauthorized' });
         }
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: "Something went wrong" });
     }
 }

@@ -31,7 +31,7 @@ const registerAdmin = async (req, res) => {
                 newUser = await User.create({ email, name, phone, password: hashedPassword, role: 'admin' });
             }
             newUser = await User.create({ email, name, phone, gender, password: hashedPassword, role: _role.toLowerCase() });
-            res.status(201).json({ message: 'Admin details are:', password: password, email: newUser.email, name: newUser.name, role: newUser.role});
+            res.status(201).json({ message: 'Admin details are:', password: password, email: newUser.email, name: newUser.name, role: newUser.role });
         } else { return res.status(401).json({ message: 'unauthorized' }); }
     } catch (e) {
         console.log(e);
@@ -96,7 +96,7 @@ const getAdmin = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        if (decoded.role == 'admin' || decoded.role == 'sub-admin') {
+        if (decoded.data.role == 'admin' || decoded.data.role == 'sub-admin') {
             const user = await User.findById({ id });
             if (!user) return res.status(404).json({ message: 'user not found' });
             res.status(200).json(user);

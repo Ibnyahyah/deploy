@@ -5,6 +5,7 @@ const JWT = require('jsonwebtoken')
 
 // create Stock
 const createProductCopy = async (req, res) => {
+    const today = new Date().getMonth() + ':' + new Date().getDate();
     try {
         const token = req.headers.authorization.split(' ')[1];
         if (!token) return res.status(401).json({ message: 'unauthorized' });
@@ -13,33 +14,15 @@ const createProductCopy = async (req, res) => {
             const _products = await Product.find();
             const copiedProducts = await ProductCopy.find();
 
-            if (copiedProducts.length < 1) {
-                for (let i = 0; i < _products.length; i++) {
-                    const product = _products[i];
-                    const stock = await Stock.findOne({ productName: product.productName.toLowerCase() });
-                    if (!stock) {
-                        let newStock = []
-                        const newProd = await ProductCopy.create({ productID: product._id, productBrand: product.productBrand, productName: product.productName, availableStock: product.availableStock, skuType: product.skuType, skuQty: product.skuQty, price: product.price })
-                        newStock.push(newProd);
-                        await Stock.create({ productName: product.productName, products: newStock });
-                    } else {
-                        const newProd = await ProductCopy.create({ productID: product._id, productBrand: product.productBrand, productName: product.productName, availableStock: product.availableStock, skuType: product.skuType, skuQty: product.skuQty, price: product.price })
-                        stock.products.push(newProd);
-                    }
-                    await stock.save();
-                }
-            } else {
-                for (let i = 0; i < _products.length; i++) {
-                    const product = _products[i];
-                    const stock = await Stock.findOne({ productName: product.productName.toLowerCase() });
-                    const copiedProduct = await ProductCopy.findOne({ productBrand: product.productBrand });
-                    const copied = copiedProducts.find(function (value) {
-                        const prodDate = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate()
-                        const todayDate = new Date().getFullYear() + ':' + new Date().getMonth() + ':' + new Date().getDate()
-                        return prodDate === todayDate;
-                    });
+            const copyChecker = () => {
+                return copiedProducts.length > 0 ? copiedProducts.some((prod) => new Date(prod.createdAt).getMonth() + ':' + new Date(prod.createdAt).getDate() == today) : _products.some((prod) => new Date(prod.createdAt).getMonth() + ':' + new Date(prod.createdAt).getDate() == today);
+            }
 
-                    if (!copied || !copiedProduct) {
+            if (!copyChecker()) {
+                if (copiedProducts.length < 1) {
+                    for (let i = 0; i < _products.length; i++) {
+                        const product = _products[i];
+                        const stock = await Stock.findOne({ productName: product.productName.toLowerCase() });
                         if (!stock) {
                             let newStock = []
                             const newProd = await ProductCopy.create({ productID: product._id, productBrand: product.productBrand, productName: product.productName, availableStock: product.availableStock, skuType: product.skuType, skuQty: product.skuQty, price: product.price })
@@ -49,12 +32,38 @@ const createProductCopy = async (req, res) => {
                             const newProd = await ProductCopy.create({ productID: product._id, productBrand: product.productBrand, productName: product.productName, availableStock: product.availableStock, skuType: product.skuType, skuQty: product.skuQty, price: product.price })
                             stock.products.push(newProd);
                         }
+                        await stock.save();
                     }
-                    await stock.save();
-                }
-            }
+                } else {
+                    for (let i = 0; i < _products.length; i++) {
+                        const product = _products[i];
+                        const stock = await Stock.findOne({ productName: product.productName.toLowerCase() });
+                        const copiedProduct = await ProductCopy.findOne({ productBrand: product.productBrand });
+                        const copied = copiedProducts.find(function (value) {
+                            const prodDate = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate()
+                            const todayDate = new Date().getFullYear() + ':' + new Date().getMonth() + ':' + new Date().getDate()
+                            return prodDate === todayDate;
+                        });
 
-            res.status(200).json({ message: 'Product copied created successfully' })
+                        if (!copied || !copiedProduct) {
+                            if (!stock) {
+                                let newStock = []
+                                const newProd = await ProductCopy.create({ productID: product._id, productBrand: product.productBrand, productName: product.productName, availableStock: product.availableStock, skuType: product.skuType, skuQty: product.skuQty, price: product.price })
+                                newStock.push(newProd);
+                                await Stock.create({ productName: product.productName, products: newStock });
+                            } else {
+                                const newProd = await ProductCopy.create({ productID: product._id, productBrand: product.productBrand, productName: product.productName, availableStock: product.availableStock, skuType: product.skuType, skuQty: product.skuQty, price: product.price })
+                                stock.products.push(newProd);
+                            }
+                        }
+                        await stock.save();
+                    }
+                }
+
+                res.status(200).json({ message: 'Product copied created successfully' })
+            } else {
+                res.status(200).json({ message: 'Wait for 24hours before copying.' });
+            }
         } else {
             return res.status(401).json({ message: 'unauthorized' });
         }

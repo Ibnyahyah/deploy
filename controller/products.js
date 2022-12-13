@@ -102,22 +102,24 @@ const deleteProduct = async (req, res) => {
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
         if (decoded.data.role == 'admin' || decoded.data.role == 'sub-admin' || decoded.data.role == 'inventory-admin') {
             const product = await Product.findByIdAndDelete(id);
-            console.log(product)
             // if (!product) return res.status(404).json({ message: 'Product Not Found' });
             const copiedProduct = await ProductCopy.findOneAndDelete({ productID: id });
-            console.log(copiedProduct)
             // if (!copiedProduct) return res.status(404).json({ message: 'Product Not Found' });
             const deleteStock = await Stock.findOne({ brandName: product !== null ? product.productName : copiedProduct.productName });
             if (!deleteStock) return res.status(404).json({ message: 'Stock Not Found' });
 
-            deleteStock.products.forEach(async (prod) => {
-                console.log({ 'some': (product !== null ? prod._id == id : prod.productID == id), 'prod': product ? prod._id == id : prod.productID == id, 'id': id });
-                if (product !== null ? prod._id == id : prod.productID == id) {
-                    deleteStock.products.splice(deleteStock.products.indexOf(prod), 1);
-                    await deleteStock.save();
-                    res.status(200).json({ message: 'Product deleted successfully' });
-                }
-            });
+            if (deleteStock.products.length > 0) {
+                deleteStock.products.forEach(async (prod) => {
+                    console.log({ 'some': (product !== null ? prod._id == id : prod.productID == id), 'prod': product ? prod._id == id : prod.productID == id, 'id': id });
+                    if (product !== null ? prod._id == id : prod.productID == id) {
+                        deleteStock.products.splice(deleteStock.products.indexOf(prod), 1);
+                        await deleteStock.save();
+                        res.status(200).json({ message: 'Product deleted successfully' });
+                    }
+                });
+            } else {
+                res.status(200).json({ message: 'Product deleted successfully' });
+            }
         } else { return res.status(401).json({ message: 'unauthorized' }); }
     } catch (error) {
         res.status(500).json({ message: 'Something went wrong' });

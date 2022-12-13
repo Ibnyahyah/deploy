@@ -62,7 +62,7 @@ const updateAdmin = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        if (decoded.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
+        if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
         const user = await User.findOneAndUpdate(email);
         if (!user) return res.status(401).json({ message: 'User not found' });
         user.name = name;
@@ -107,6 +107,22 @@ const getAdmin = async (req, res) => {
     }
 }
 
+const deleteAdmin = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const token = req.headers.authorization.split(' ')[1];
+        const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        if (decoded.data.role == 'admin') {
+            const user = await User.findByIdAndDelete(id);
+            if (!user) return res.status(404).json({ message: 'user not found' });
+            res.status(200).json({ message: 'Admin deleted successfully.' });
+        } else { return res.status(401).json({ message: 'unauthorized' }); }
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: 'Something went wrong' });
+    }
+}
 
 
-module.exports = { getAdmin, getAllAdmins, adminSignIn, updateAdmin, registerAdmin, };
+
+module.exports = { getAdmin, getAllAdmins, adminSignIn, updateAdmin, registerAdmin, deleteAdmin };

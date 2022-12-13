@@ -134,6 +134,8 @@ const updateStocks = async (req, res) => {
 
             const product = await Product.findByIdAndUpdate(id);
             const copiedProduct = await ProductCopy.findOneAndUpdate({ productID: id });
+            const updateStock = await Stock.findOne({ productName: product.productName });
+            if (!updateStock) return res.status(404).json({ message: 'Stock Not Found' });
             if (!product) return res.status(404).json({ message: 'Product Not Found' });
             // product.productBrand = productBrand;
             product.availableStock = availableStock;
@@ -155,8 +157,6 @@ const updateStocks = async (req, res) => {
                 copiedProduct.physicalCount = physicalCount;
                 copiedProduct.variance = variance;
             }
-            const updateStock = await Stock.findOne({ productName: product.productName });
-            if (!updateStock) return res.status(404).json({ message: 'Stock Not Found' });
 
             updateStock.products.forEach(async (prod) => {
                 console.log({ 'some': (prod.productID == id), 'prod': prod._id, 'id': id });

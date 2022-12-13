@@ -102,14 +102,14 @@ const deleteProduct = async (req, res) => {
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
         if (decoded.data.role == 'admin' || decoded.data.role == 'sub-admin' || decoded.data.role == 'inventory-admin') {
             const product = await Product.findByIdAndDelete(id);
-            if (!product) return res.status(404).json({ message: 'Product Not Found' });
+            // if (!product) return res.status(404).json({ message: 'Product Not Found' });
             await ProductCopy.findOneAndDelete({ productID: id });
             // if (!copiedProduct) return res.status(404).json({ message: 'Product Not Found' });
             const deleteStock = await Stock.findOne({ brandName: product.productName });
             if (!deleteStock) return res.status(404).json({ message: 'Stock Not Found' });
 
             deleteStock.products.forEach(async (prod) => {
-                console.log({ 'some': (prod.productID == id), 'prod': prod.productID, 'id': id });
+                console.log({ 'some': (prod.productID == id || prod._id == id), 'prod': prod.productID, 'id': id });
                 if (prod.productID == id || prod._id == id) {
                     deleteStock.products.splice(deleteStock.products.indexOf(prod), 1);
                     await deleteStock.save();

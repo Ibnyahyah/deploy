@@ -31,8 +31,8 @@ const createProductCopy = async (req, res) => {
                         } else {
                             const newProd = await ProductCopy.create({ productID: product._id, productBrand: product.productBrand, productName: product.productName, availableStock: product.availableStock, skuType: product.skuType, skuQty: product.skuQty, price: product.price })
                             stock.products.push(newProd);
+                            await stock.save();
                         }
-                        await stock.save();
                     }
                 } else {
                     for (let i = 0; i < _products.length; i++) {
@@ -54,9 +54,9 @@ const createProductCopy = async (req, res) => {
                             } else {
                                 const newProd = await ProductCopy.create({ productID: product._id, productBrand: product.productBrand, productName: product.productName, availableStock: product.availableStock, skuType: product.skuType, skuQty: product.skuQty, price: product.price })
                                 stock.products.push(newProd);
+                                await stock.save();
                             }
                         }
-                        await stock.save();
                     }
                 }
 
@@ -117,7 +117,7 @@ const getTodayStocks = async (req, res) => {
                 if (stock.products.length > 0) {
 
                     stock.products.map(prod => {
-                        if (new Date(prod.createdAt).getDate() == date.getDate() && new Date(prod.createdAt).getFullYear() == date.getFullYear()) {
+                        if (new Date(prod.createdAt).getDate() == date.getDate() && new Date(prod.createdAt).getFullYear() == date.getFullYear() && prod !== null) {
                             _stocks.products.push(prod);
                         }
                     })
@@ -131,7 +131,7 @@ const getTodayStocks = async (req, res) => {
         }
     } catch (error) {
         res.status(500).json({ message: 'Something went wrong' });
-        console.log(error)
+        console.log(error);
     }
 }
 

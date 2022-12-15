@@ -14,6 +14,7 @@ const createProductCopy = async (req, res) => {
             const _products = await Product.find();
             const copiedProducts = await ProductCopy.find();
 
+            copiedProducts.map((prod) => console.log(new Date(prod.createdAt).getMonth() + ':' + new Date(prod.createdAt).getDate(), today))
             const copyChecker = () => {
                 return copiedProducts.length > 0 ? copiedProducts.some((prod) => new Date(prod.createdAt).getMonth() + ':' + new Date(prod.createdAt).getDate() == today) : _products.some((prod) => new Date(prod.createdAt).getMonth() + ':' + new Date(prod.createdAt).getDate() == today);
             }
@@ -59,10 +60,9 @@ const createProductCopy = async (req, res) => {
                         }
                     }
                 }
-
                 res.status(200).json({ message: 'Product copied created successfully' })
             } else {
-                res.status(200).json({ message: 'Wait for 24hours before copying.' });
+                res.status(403).json({ message: 'Wait for 24hours before copying.' });
             }
         } else {
             return res.status(401).json({ message: 'unauthorized' });
@@ -105,6 +105,7 @@ const getTodayStocks = async (req, res) => {
                 _id: '',
                 productName: '',
                 products: [],
+                date: ''
             };
             let newStocks = [];
             stocks.map(stock => {
@@ -112,6 +113,7 @@ const getTodayStocks = async (req, res) => {
                     _id: stock._id,
                     productName: stock.productName,
                     products: [],
+                    date: stock.updatedAt,
                 };
                 console.log(stock.products)
                 if (stock.products.length > 0) {
@@ -205,11 +207,10 @@ const updateStocks = async (req, res) => {
                     prod.physicalCount = physicalCount;
                     prod.variance = variance;
 
-
                     if (product) await product.save();
                     if (copiedProduct) await copiedProduct.save();
 
-                    updateStock.products.splice(updateStock.products.indexOf(prod), 1, copiedProduct);
+                    updateStock.products.splice(updateStock.products.indexOf(prod), 1, copiedProduct ? copiedProduct : product);
                     await updateStock.save();
 
 

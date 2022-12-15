@@ -58,12 +58,13 @@ const adminSignIn = async (req, res) => {
 }
 
 const updateAdmin = async (req, res) => {
+    const { id } = req.params;
     const { email, name, phone, role } = req.body;
     try {
         const token = req.headers.authorization.split(' ')[1];
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
         if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
-        const user = await User.findOneAndUpdate({ email });
+        const user = await User.findByIdAndUpdate(id);
         if (!user) return res.status(401).json({ message: 'User not found' });
         user.name = name;
         user.email = email;

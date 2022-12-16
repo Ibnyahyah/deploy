@@ -36,7 +36,7 @@ const createAgent = async (req, res) => {
     try {
         if (!token) return res.status(401).json({ message: 'unauthorized' });
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        if (decoded.data.role == 'admin' || decoded.data.role == 'sub-admin') {
+        if (decoded.data.role == 'admin' || decoded.data.role == 'sub-admin' || decoded.data.role == 'agent-admin') {
             const emailExist = await Agent.findOne({ agentEmail });
             if (emailExist) return res.status(400).json({ message: 'agent already exist with this email' });
             const phoneExist = await Agent.findOne({ phone });

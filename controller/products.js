@@ -34,7 +34,7 @@ const createProducts = async (req, res) => {
     }
 }
 
-const getAllProducts = async (req, res) => {
+const products = async (req, res) => {
     try {
         const products = []
         const product = await Product.find();
@@ -44,6 +44,15 @@ const getAllProducts = async (req, res) => {
             }
         })
         res.status(200).json(products);
+    } catch (error) {
+        res.status(500).json({ message: 'Something went wrong' });
+    }
+}
+const getAllProducts = async (req, res) => {
+    try {
+        const product = await Product.find();
+        
+        res.status(200).json(product);
     } catch (error) {
         res.status(500).json({ message: 'Something went wrong' });
     }
@@ -130,4 +139,4 @@ const deleteProduct = async (req, res) => {
     }
 }
 
-module.exports = { createProducts, getAllProducts, updateProducts, deleteProduct, availabilityOfProduct };
+module.exports = { createProducts, getAllProducts, updateProducts, deleteProduct, availabilityOfProduct ,products};

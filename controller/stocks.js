@@ -141,6 +141,7 @@ const updateStocks = async (req, res) => {
     const { id } = req.params;
     const { productBrand, availableStock, openingStock, closingStock, receipts, sales, damages, physicalCount, variance } = req.body;
 
+
     try {
         const token = req.headers.authorization.split(' ')[1];
         if (!token) return res.status(401).json({ message: 'unauthorized' });
@@ -149,20 +150,15 @@ const updateStocks = async (req, res) => {
 
             const product = await Product.findByIdAndUpdate(id);
             const copiedProduct = await ProductCopy.findOneAndUpdate({ productID: id });
-            const updateStock = await Stock.findOne({ productName: copiedProduct ? copiedProduct.productName : product.productName });
+            const updateStock = await Stock.findOne({ productName: product ? product.productName : copiedProduct.productName });
+            console.log({ updateStock }, { copiedProduct }, { product });
+
+            const today = new Date().getMonth() + ':' + new Date().getDate();
+            const productDate = copiedProduct ? new Date(copiedProduct.createdAt).getMonth() + ':' + new Date(copiedProduct.createdAt).getDate() : new Date(product.createdAt).getMonth() + ':' + new Date(product.createdAt).getDate();
+
             if (!updateStock) return res.status(404).json({ message: 'Stock Not Found' });
             // if (!product) return res.status(404).json({ message: 'Product Not Found' });
-            if (copiedProduct && product) {
-                // product.productBrand = productBrand;
-                product.availableStock = availableStock;
-                product.openingStock = openingStock;
-                product.closingStock = closingStock;
-                product.receipts = receipts;
-                product.damages = damages;
-                product.sales = sales;
-                product.physicalCount = physicalCount;
-                product.variance = variance;
-
+            if (copiedProduct) {
                 // copiedProduct.productBrand = productBrand
                 copiedProduct.availableStock = availableStock;
                 copiedProduct.openingStock = openingStock;
@@ -172,17 +168,8 @@ const updateStocks = async (req, res) => {
                 copiedProduct.sales = sales;
                 copiedProduct.physicalCount = physicalCount;
                 copiedProduct.variance = variance;
-            } else if (copiedProduct) {
-                // copiedProduct.productBrand = productBrand
-                copiedProduct.availableStock = availableStock;
-                copiedProduct.openingStock = openingStock;
-                copiedProduct.closingStock = closingStock;
-                copiedProduct.receipts = receipts;
-                copiedProduct.damages = damages;
-                copiedProduct.sales = sales;
-                copiedProduct.physicalCount = physicalCount;
-                copiedProduct.variance = variance;
-            } else if (product) {
+            }
+            if (product) {
                 // product.productBrand = productBrand;
                 product.availableStock = availableStock;
                 product.openingStock = openingStock;
@@ -195,8 +182,9 @@ const updateStocks = async (req, res) => {
             }
 
             updateStock.products.forEach(async (prod) => {
-                console.log({ 'some': (prod.productID == id), 'prod': prod._id, 'id': id });
-                if (prod.productID == id || prod._id == id) {
+                console.log({ prod })
+                console.log({ 'some': (prod.productID == id), 'prod': prod._id, prodDate: productDate == today, 'id': id, prod: prod._id == id });
+                if (prod.productID ? prod.productID == id : prod._id == id && productDate == today) {
                     // prod.productBrand = productBrand;
                     prod.openingStock = openingStock;
                     prod.availableStock = availableStock;
@@ -207,13 +195,11 @@ const updateStocks = async (req, res) => {
                     prod.physicalCount = physicalCount;
                     prod.variance = variance;
 
-                    if (product) await product.save();
-                    if (copiedProduct) await copiedProduct.save();
+                    // if (product && productDate == today) await product.save();
+                    if (copiedProduct && productDate == today) await copiedProduct.save();
 
-                    updateStock.products.splice(updateStock.products.indexOf(prod), 1, copiedProduct ? copiedProduct : product);
+                    updateStock.products.splice(updateStock.products.indexOf(prod), 1, product ? product : copiedProduct);
                     await updateStock.save();
-
-
                     res.status(200).json({ message: 'Product updated successfully' });
                 }
             });

@@ -36,8 +36,14 @@ const createProducts = async (req, res) => {
 
 const getAllProducts = async (req, res) => {
     try {
+        const products = []
         const product = await Product.find();
-        res.status(200).json(product);
+        product.find(function (prod) {
+            if (prod.isAvailable) {
+                products.push(prod);
+            }
+        })
+        res.status(200).json(products);
     } catch (error) {
         res.status(500).json({ message: 'Something went wrong' });
     }
@@ -69,31 +75,28 @@ const updateProducts = async (req, res) => {
     }
 }
 
-const generateProducts = async (req, res) => {
-    const { productName, productBrand, skuType, skuQty, price } = req.body;
+const availabilityOfProduct = async (req, res) => {
+    const { id } = req.params;
+    const { isAvailable } = req.body;
 
     try {
         const token = req.headers.authorization.split(' ')[1];
         if (!token) return res.status(401).json({ message: 'unauthorized' });
         const decoded = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        if (decoded.data.role !== 'admin') return res.status(401).json({ message: 'unauthorized' });
+        if (decoded.data.role == 'admin' || decoded.data.role == 'sub-admin' || decoded.data.role == 'inventory-admin') {
 
+            const product = await Product.findByIdAndUpdate(id);
+            if (!product) return res.status(404).json({ message: 'Product Not Found' });
+            product.isAvailable = isAvailable;
 
-        // const product = await Product.find();
-        // const product = await Product.findByIdAndUpdate(id);
-        // if (!product) return res.status(404).json({ message: 'Product Not Found' });
-        // product.productName = productName;
-        // product.productBrand = productBrand;
-        // product.skuType = skuType;
-        // product.skuQty = skuQty;
-        // product.price = price;
-
-        await product.save();
-        res.status(200).json({ message: 'Product updated successfully' });
+            await product.save();
+            res.status(200).json({ message: 'Product updated successfully' });
+        } else { return res.status(401).json({ message: 'unauthorized' }); }
     } catch (error) {
         res.status(500).json({ message: "Something went wrong" });
     }
 }
+
 const deleteProduct = async (req, res) => {
     const { id } = req.params;
     try {
@@ -127,4 +130,4 @@ const deleteProduct = async (req, res) => {
     }
 }
 
-module.exports = { createProducts, getAllProducts, updateProducts, deleteProduct };
+module.exports = { createProducts, getAllProducts, updateProducts, deleteProduct, availabilityOfProduct };

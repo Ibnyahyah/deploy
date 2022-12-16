@@ -58,6 +58,10 @@ const productSchema = new mongoose.Schema({
         type: String,
         default: '0',
     },
+    isAvailable: {
+        type: Boolean,
+        default: true,
+    },
 }, { timestamps: true });
 
 module.exports = mongoose.model("Product", productSchema);

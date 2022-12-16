@@ -20,9 +20,6 @@ const userSchema = new mongoose.Schema({
     nearestLandmark: {
         type: String,
     },
-    gender: {
-        type: String,
-    },
     password: {
         type: String
     },

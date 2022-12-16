@@ -15,7 +15,7 @@ function generateToken(data) {
 
 const registerAdmin = async (req, res) => {
     let newUser;
-    const { name, email, phone, gender, password, role } = req.body;
+    const { name, email, phone, password, role } = req.body;
     try {
         const token = req.headers.authorization.split(' ')[1];
         if (!token) return res.status(401).json({ message: 'unauthorized' });
@@ -30,7 +30,7 @@ const registerAdmin = async (req, res) => {
             if (isFirstUser) {
                 newUser = await User.create({ email, name, phone, password: hashedPassword, role: 'admin' });
             }
-            newUser = await User.create({ email, name, phone, gender, password: hashedPassword, role: _role.toLowerCase() });
+            newUser = await User.create({ email, name, phone, password: hashedPassword, role: _role.toLowerCase() });
             res.status(201).json({ message: 'Admin details are:', password: password, email: newUser.email, name: newUser.name, role: newUser.role });
         } else { return res.status(401).json({ message: 'unauthorized' }); }
     } catch (e) {

@@ -90,7 +90,7 @@ const availabilityOfProduct = async (req, res) => {
             product.isAvailable = isAvailable;
 
             await product.save();
-            res.status(200).json({ message: 'Product updated successfully' });
+            res.status(200).json({ message: 'Product availability updated successfully' });
         } else { return res.status(401).json({ message: 'unauthorized' }); }
     } catch (error) {
         res.status(500).json({ message: "Something went wrong" });

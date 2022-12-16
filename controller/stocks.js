@@ -5,7 +5,7 @@ const JWT = require('jsonwebtoken')
 
 // create Stock
 const createProductCopy = async (req, res) => {
-    const today = new Date().getMonth() + ':' + new Date().getDate();
+    const today =new Date().getFullYear()+':' +new Date().getMonth() + ':' + new Date().getDate();
     try {
         const token = req.headers.authorization.split(' ')[1];
         if (!token) return res.status(401).json({ message: 'unauthorized' });
@@ -16,7 +16,7 @@ const createProductCopy = async (req, res) => {
 
             copiedProducts.map((prod) => console.log(new Date(prod.createdAt).getMonth() + ':' + new Date(prod.createdAt).getDate(), today))
             const copyChecker = () => {
-                return copiedProducts.length > 0 ? copiedProducts.some((prod) => new Date(prod.createdAt).getMonth() + ':' + new Date(prod.createdAt).getDate() == today) : _products.some((prod) => new Date(prod.createdAt).getMonth() + ':' + new Date(prod.createdAt).getDate() == today);
+                return copiedProducts.length > 0 ? copiedProducts.some((prod) => new Date(prod.createdAt).getFullYear()+':' +new Date(prod.createdAt).getMonth() + ':' + new Date(prod.createdAt).getDate() == today) : _products.some((prod) => new Date(prod.createdAt).getFullYear()+':' + new Date(prod.createdAt).getMonth() + ':' + new Date(prod.createdAt).getDate() == today);
             }
 
             if (!copyChecker()) {
@@ -24,6 +24,7 @@ const createProductCopy = async (req, res) => {
                     for (let i = 0; i < _products.length; i++) {
                         const product = _products[i];
                         const stock = await Stock.findOne({ productName: product.productName.toLowerCase() });
+                        if(product.isAvailable){
                         if (!stock) {
                             let newStock = []
                             const newProd = await ProductCopy.create({ productID: product._id, productBrand: product.productBrand, productName: product.productName, availableStock: product.availableStock, skuType: product.skuType, skuQty: product.skuQty, price: product.price })
@@ -33,7 +34,7 @@ const createProductCopy = async (req, res) => {
                             const newProd = await ProductCopy.create({ productID: product._id, productBrand: product.productBrand, productName: product.productName, availableStock: product.availableStock, skuType: product.skuType, skuQty: product.skuQty, price: product.price })
                             stock.products.push(newProd);
                             await stock.save();
-                        }
+                        }}
                     }
                 } else {
                     for (let i = 0; i < _products.length; i++) {
@@ -45,8 +46,8 @@ const createProductCopy = async (req, res) => {
                             const todayDate = new Date().getFullYear() + ':' + new Date().getMonth() + ':' + new Date().getDate()
                             return prodDate === todayDate;
                         });
-
-                        if (!copied || !copiedProduct) {
+                       if(product.isAvailable){
+                         if (!copied || !copiedProduct) {
                             if (!stock) {
                                 let newStock = []
                                 const newProd = await ProductCopy.create({ productID: product._id, productBrand: product.productBrand, productName: product.productName, availableStock: product.availableStock, skuType: product.skuType, skuQty: product.skuQty, price: product.price })
@@ -58,6 +59,7 @@ const createProductCopy = async (req, res) => {
                                 await stock.save();
                             }
                         }
+                       }
                     }
                 }
                 res.status(200).json({ message: 'Product copied created successfully' })
@@ -153,8 +155,8 @@ const updateStocks = async (req, res) => {
             const updateStock = await Stock.findOne({ productName: product ? product.productName : copiedProduct.productName });
             console.log({ updateStock }, { copiedProduct }, { product });
 
-            const today = new Date().getMonth() + ':' + new Date().getDate();
-            const productDate = copiedProduct ? new Date(copiedProduct.createdAt).getMonth() + ':' + new Date(copiedProduct.createdAt).getDate() : new Date(product.createdAt).getMonth() + ':' + new Date(product.createdAt).getDate();
+            const today = new Date().getFullYear()+':' + new Date().getMonth() + ':' + new Date().getDate();
+            const productDate = copiedProduct ? new Date(copiedProduct.createdAt).getFullYear()+':' +new Date(copiedProduct.createdAt).getMonth() + ':' + new Date(copiedProduct.createdAt).getDate() :new Date(product.createdAt).getFullYear()+':' + new Date(product.createdAt).getMonth() + ':' + new Date(product.createdAt).getDate();
 
             if (!updateStock) return res.status(404).json({ message: 'Stock Not Found' });
             // if (!product) return res.status(404).json({ message: 'Product Not Found' });

@@ -154,39 +154,39 @@ const updateStocks = async (req, res) => {
             const product = await Product.findByIdAndUpdate(id);
             const copiedProduct = await ProductCopy.findOneAndUpdate({ productID: id });
             const updateStock = await Stock.findOne({ productName: product ? product.productName : copiedProduct.productName });
-            console.log({ updateStock }, { copiedProduct }, { product });
-
             const today = new Date().getFullYear() + ':' + new Date().getMonth() + ':' + new Date().getDate();
-            const productDate = copiedProduct ? new Date(copiedProduct.createdAt).getFullYear() + ':' + new Date(copiedProduct.createdAt).getMonth() + ':' + new Date(copiedProduct.createdAt).getDate() : new Date(product.createdAt).getFullYear() + ':' + new Date(product.createdAt).getMonth() + ':' + new Date(product.createdAt).getDate();
+            const productDate = new Date(product.createdAt).getFullYear() + ':' + new Date(product.createdAt).getMonth() + ':' + new Date(product.createdAt).getDate();
 
             if (!updateStock) return res.status(404).json({ message: 'Stock Not Found' });
             // if (!product) return res.status(404).json({ message: 'Product Not Found' });
-            if (copiedProduct) {
-                // copiedProduct.productBrand = productBrand
-                copiedProduct.availableStock = availableStock;
-                copiedProduct.openingStock = openingStock;
-                copiedProduct.closingStock = closingStock;
-                copiedProduct.receipts = receipts;
-                copiedProduct.damages = damages;
-                copiedProduct.sales = sales;
-                copiedProduct.physicalCount = physicalCount;
-                copiedProduct.variance = variance;
-            }
-            if (product) {
-                // product.productBrand = productBrand;
-                product.availableStock = availableStock;
-                product.openingStock = openingStock;
-                product.closingStock = closingStock;
-                product.receipts = receipts;
-                product.damages = damages;
-                product.sales = sales;
-                product.physicalCount = physicalCount;
-                product.variance = variance;
-            }
+            // if (copiedProduct) {
+            //     // copiedProduct.productBrand = productBrand
+            //     copiedProduct.availableStock = availableStock;
+            //     copiedProduct.openingStock = openingStock;
+            //     copiedProduct.closingStock = closingStock;
+            //     copiedProduct.receipts = receipts;
+            //     copiedProduct.damages = damages;
+            //     copiedProduct.sales = sales;
+            //     copiedProduct.physicalCount = physicalCount;
+            //     copiedProduct.variance = variance;
+            // }
+            // if (product) {
+            //     // product.productBrand = productBrand;
+            //     product.availableStock = availableStock;
+            //     product.openingStock = openingStock;
+            //     product.closingStock = closingStock;
+            //     product.receipts = receipts;
+            //     product.damages = damages;
+            //     product.sales = sales;
+            //     product.physicalCount = physicalCount;
+            //     product.variance = variance;
+            // }
 
             updateStock.products.forEach(async (prod) => {
-                console.log({ 'some': (prod.productID == id), 'prod': prod._id, prodDate: productDate == today, 'id': id, prod: prod._id == id });
-                if (prod.productID ? prod.productID == id : prod._id == id && productDate == today) {
+                const copiedProductDate = new Date(prod.createdAt).getFullYear() + ':' + new Date(prod.createdAt).getMonth() + ':' + new Date(prod.createdAt).getDate();
+                // console.log({ 'some': (prod.productID == id), 'prod': prod._id, prodDate: productDate == today, 'id': id, prod: prod._id == id, productDate, today, copiedProductDate });
+
+                if (prod.productID ? prod.productID == id && copiedProductDate == today : prod._id == id && productDate == today) {
                     // prod.productBrand = productBrand;
                     prod.openingStock = openingStock;
                     prod.availableStock = availableStock;
@@ -197,14 +197,11 @@ const updateStocks = async (req, res) => {
                     prod.physicalCount = physicalCount;
                     prod.variance = variance;
 
-                    // if (product && productDate == today) await product.save();
-                    if (copiedProduct && productDate == today) await copiedProduct.save();
-
-                    updateStock.products.splice(updateStock.products.indexOf(prod), 1, product ? product : copiedProduct);
+                    updateStock.products.splice(updateStock.products.indexOf(prod), 1, prod);
                     await updateStock.save();
-                    res.status(200).json({ message: 'Product updated successfully' });
                 }
             });
+            res.status(200).json({ message: 'Product updated successfully' });
         } else {
             return res.status(401).json({ message: 'unauthorized' });
         }

@@ -77,7 +77,7 @@ const getAnalytics = async (req, res) => {
                 }
                 return res;
             }
-            const CustomerFilterArray = (arr) => {
+            const FilterArray = (arr) => {
                 const result = arr.filter(myFunction);
                 function myFunction(value) {
                     const valueToday = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate();
@@ -88,8 +88,9 @@ const getAnalytics = async (req, res) => {
 
             const orderValue = OrderFilterArray(orders);
             OrdersArray = orderValue;
-            const customerValue = CustomerFilterArray(customers);
+            const customerValue = FilterArray(customers);
             customersArray = customerValue;
+            const noOfOrders = FilterArray(orders)
             // orders.find(function (value) {
             //     const prodDate = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate()
             //     const prdDate = new Date(value.createdAt).getDate() < 10 ? '0' + new Date(value.createdAt).getDate() : new Date(value.createdAt).getDate()
@@ -124,7 +125,7 @@ const getAnalytics = async (req, res) => {
             });
 
 
-            res.status(200).json({ date: date, amountOfSales: _amountOfSales, noOfBagSold: _noOfBagSold, noOfActiveCustomers: '0', noOfRegisteredCustomers: customersArray.length, noOfOrders: orders.length });
+            res.status(200).json({ date: date, amountOfSales: _amountOfSales, noOfBagSold: _noOfBagSold, noOfActiveCustomers: '0', noOfRegisteredCustomers: customersArray.length, noOfOrders: noOfOrders.length });
             // res.status(200).json({ ords: ords });
         } else { return res.status(401).json({ message: 'unauthorized' }); }
     } catch (err) {

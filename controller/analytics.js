@@ -38,7 +38,8 @@ const getAnalytics = async (req, res) => {
             // console.log(new Date(fromDate).getDay());
             // const dateChecker = (a, b, c) => !toDate ? a == todayDate : (b > _fromDate && b > _toDate ? ((b <= _fromDate || b >= _toDate) && (c >= _fromMonth && c <= _toMonth)) : (((b <= _fromDate && b >= _toDate) || (b >= _fromDate && b <= _toDate)) && (c >= _fromMonth && c <= _toMonth)));
             // const dateChecker = (a, b, c) => !toDate ? a == todayDate : ((b >= _fromDate || b <= _toDate || (b <= _fromDate || b >= _toDate)) && (b >= _fromDate || b <= _toDate)) && (c >= _fromMonth && c <= _toMonth);
-            const dateChecker = (a, b, c) => toDate == undefined ? a == todayDate : ((b >= _fromDate && b >= _toDate) || b <= _toDate ? (((b >= _fromDate || b <= _fromDate) && (b >= _toDate || b <= _toDate) || (b >= _fromDate && b <= _toDate)) && (c >= _fromMonth && c <= _toMonth)) : ((b >= _fromDate && b <= _toDate) && (c >= _fromMonth && c <= _toMonth)));
+            // const dateChecker = (a, b, c) => toDate == undefined ? a == todayDate : ((b >= _fromDate && b >= _toDate) || b <= _toDate ? (((b >= _fromDate || b <= _fromDate) && (b >= _toDate || b <= _toDate) || (b >= _fromDate && b <= _toDate)) && (c >= _fromMonth && c <= _toMonth)) : ((b >= _fromDate && b <= _toDate) && (c >= _fromMonth && c <= _toMonth)));
+            const dateChecker = (a, b, c) => toDate == undefined ? a == todayDate : b >= _fromDate && b <= _toDate && c >= _fromMonth && c <= _toMonth;
 
             orders.find(function (value) {
                 const prodDate = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate()
@@ -46,8 +47,9 @@ const getAnalytics = async (req, res) => {
                 const prdMonth = new Date(value.createdAt).getMonth() < 10 ? '0' + new Date(value.createdAt).getMonth() : new Date(value.createdAt).getMonth()
                 console.log(dateChecker(prodDate, prdDate, prdMonth));
                 console.log({ 'date': prdDate, 'month': prdMonth }, 'orders');
-                if (dateChecker(prodDate, prdDate, prdMonth)) {
+                if (dateChecker(prodDate, prdDate, prdMonth) && value.status.toLowerCase() == 'delivered') {
                     ords.push(value);
+                    console.log(ords)
                 }
             });
             customers.find(function (value) {

@@ -87,7 +87,7 @@ const updateProducts = async (req, res) => {
 const availabilityOfProduct = async (req, res) => {
     const { id } = req.params;
     const { isAvailable } = req.body;
-
+    console.log(isAvailable);
     try {
         const token = req.headers.authorization.split(' ')[1];
         if (!token) return res.status(401).json({ message: 'unauthorized' });
@@ -97,7 +97,7 @@ const availabilityOfProduct = async (req, res) => {
             const product = await Product.findByIdAndUpdate(id);
             if (!product) return res.status(404).json({ message: 'Product Not Found' });
             product.isAvailable = isAvailable;
-            if (isAvailable == true) {
+            if (isAvailable == false) {
                 product.skuQty = "0";
             }
 

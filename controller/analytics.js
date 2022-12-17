@@ -71,8 +71,9 @@ const getAnalytics = async (req, res) => {
             const OrderFilterArray = (arr) => {
                 const res = arr.filter(myFunction);
                 function myFunction(value) {
+                    console.log(value.status);
                     const valueToday = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate();
-                    return toDate == undefined ? valueToday == todayDate : (new Date(value.createdAt).getDate() >= _fromDate || new Date(value.createdAt).getDate() >= _toDate) && (new Date(value.createdAt).getMonth() >= _fromMonth && new Date(value.createdAt).getMonth() <= _toMonth) && value.status.toLowerCase() == 'delivered';
+                    return toDate == undefined ? valueToday == todayDate && value.status.toLowerCase() == 'delivered' : (new Date(value.createdAt).getDate() >= _fromDate || new Date(value.createdAt).getDate() >= _toDate) && (new Date(value.createdAt).getMonth() >= _fromMonth && new Date(value.createdAt).getMonth() <= _toMonth) && value.status.toLowerCase() == 'delivered';
                 }
                 return res;
             }
@@ -89,8 +90,6 @@ const getAnalytics = async (req, res) => {
             OrdersArray = orderValue;
             const customerValue = CustomerFilterArray(customers);
             customersArray = customerValue;
-
-            console.log(OrdersArray);
             // orders.find(function (value) {
             //     const prodDate = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate()
             //     const prdDate = new Date(value.createdAt).getDate() < 10 ? '0' + new Date(value.createdAt).getDate() : new Date(value.createdAt).getDate()

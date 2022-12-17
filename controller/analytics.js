@@ -71,7 +71,7 @@ const getAnalytics = async (req, res) => {
             const OrderFilterArray = (arr) => {
                 const res = arr.filter(myFunction);
                 function myFunction(value) {
-                    console.log(value.status);
+                    console.log(value);
                     const valueToday = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate();
                     return toDate == undefined ? valueToday == todayDate && value.status.toLowerCase() == 'delivered' : (new Date(value.createdAt).getDate() >= _fromDate || new Date(value.createdAt).getDate() >= _toDate) && (new Date(value.createdAt).getMonth() >= _fromMonth && new Date(value.createdAt).getMonth() <= _toMonth) && value.status.toLowerCase() == 'delivered';
                 }
@@ -124,7 +124,7 @@ const getAnalytics = async (req, res) => {
             });
 
 
-            res.status(200).json({ date: date, amountOfSales: _amountOfSales, noOfBagSold: _noOfBagSold, noOfActiveCustomers: '0', noOfRegisteredCustomers: customersArray.length, noOfOrders: OrdersArray.length });
+            res.status(200).json({ date: date, amountOfSales: _amountOfSales, noOfBagSold: _noOfBagSold, noOfActiveCustomers: '0', noOfRegisteredCustomers: customersArray.length, noOfOrders: orders.length });
             // res.status(200).json({ ords: ords });
         } else { return res.status(401).json({ message: 'unauthorized' }); }
     } catch (err) {

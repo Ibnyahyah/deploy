@@ -33,6 +33,23 @@ const arrProd = [
     },
 ]
 
+// Define your filtering function
+function filterByDate(array, startDate, endDate) {
+    // Return a new array that matches the criteria
+    return array.filter(product => {
+        // Get the date of the product as a number
+        let productDate = product.createdAt.getTime();
+        // Get the start and end dates as numbers
+        let start = startDate.getTime();
+        if (endDate == undefined) {
+            return productDate == start;
+        }
+        let end = endDate.getTime();
+        // Return true if the product date is between start and end dates
+        return productDate >= start && productDate <= end;
+    });
+}
+
 
 const getAnalytics = async (req, res) => {
     const { date } = req.params;
@@ -40,15 +57,15 @@ const getAnalytics = async (req, res) => {
         const _todayDate = date.split('_')[0];
         const fromDate = date.split('_')[0];
         const toDate = date.split('_')[1];
-        const todayDate = new Date(_todayDate).getFullYear() + ':' + new Date(_todayDate).getMonth() + ':' + new Date(_todayDate).getDate();
+        const todayDate = new Date(_todayDate).getFullYear() + '-' + new Date(_todayDate).getMonth() + '-' + new Date(_todayDate).getDate();
 
 
         console.log({ 'fromDate': fromDate, 'toDate': toDate });
-        const _fromDate = new Date(fromDate).getDate() < 10 ? '0' + new Date(fromDate).getDate() : new Date(fromDate).getDate();
-        const _toDate = new Date(toDate).getDate() < 10 ? '0' + new Date(toDate).getDate() : new Date(toDate).getDate();
+        const _fromDate = new Date(fromDate);
+        const _toDate = new Date(toDate)
 
-        const _fromMonth = new Date(fromDate).getMonth() < 10 ? '0' + new Date(fromDate).getMonth() : new Date(fromDate).getMonth()
-        const _toMonth = new Date(toDate).getMonth() < 10 ? '0' + new Date(toDate).getMonth() : new Date(toDate).getMonth()
+        // const _fromMonth = new Date(fromDate).getMonth() < 10 ? '0' + new Date(fromDate).getMonth() : new Date(fromDate).getMonth()
+        // const _toMonth = new Date(toDate).getMonth() < 10 ? '0' + new Date(toDate).getMonth() : new Date(toDate).getMonth()
 
 
         // console.log('from date', _fromDate, 'todate', _toDate, 'from month', _fromMonth, 'to month', _toMonth)
@@ -65,33 +82,34 @@ const getAnalytics = async (req, res) => {
             // console.log(new Date(fromDate).getDay());
             // const dateChecker = (a, b, c) => !toDate ? a == todayDate : (b > _fromDate && b > _toDate ? ((b <= _fromDate || b >= _toDate) && (c >= _fromMonth && c <= _toMonth)) : (((b <= _fromDate && b >= _toDate) || (b >= _fromDate && b <= _toDate)) && (c >= _fromMonth && c <= _toMonth)));
             // const dateChecker = (a, b, c) => !toDate ? a == todayDate : ((b >= _fromDate || b <= _toDate || (b <= _fromDate || b >= _toDate)) && (b >= _fromDate || b <= _toDate)) && (c >= _fromMonth && c <= _toMonth);
-            const dateChecker = (a, b, c) => toDate == undefined ? a == todayDate : ((b >= _fromDate && b >= _toDate) || b <= _toDate ? (((b >= _fromDate || b <= _fromDate) && (b >= _toDate || b >= _toDate)) && (c >= _fromMonth && c <= _toMonth)) : ((b >= _fromDate && b <= _toDate) && (c >= _fromMonth && c <= _toMonth)));
+            // const dateChecker = (a, b, c) => toDate == undefined ? a == todayDate : ((b >= _fromDate && b >= _toDate) || b <= _toDate ? (((b >= _fromDate || b <= _fromDate) && (b >= _toDate || b >= _toDate)) && (c >= _fromMonth && c <= _toMonth)) : ((b >= _fromDate && b <= _toDate) && (c >= _fromMonth && c <= _toMonth)));
             // const dateChecker = (a, b, c) => toDate == undefined ? a == todayDate : b >= _fromDate && b <= _toDate && c >= _fromMonth && c <= _toMonth;
 
-            const OrderFilterArray = (arr) => {
-                const res = arr.filter(myFunction);
-                function myFunction(value) {
-                    const valueToday = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate();
-                    const valueDate = new Date(value.createdAt).getDate();
-                    return toDate == undefined ? valueToday == todayDate && value.status.toLowerCase() == 'delivered' : (valueDate > _fromDate || valueDate > _toDate ? (valueDate > _fromDate || valueDate > _toDate) : (valueDate >= _fromDate && valueDate <= _toDate)) && (new Date(value.createdAt).getMonth() >= _fromMonth && new Date(value.createdAt).getMonth() <= _toMonth) && value.status.toLowerCase() == 'delivered';
-                }
-                return res;
-            }
-            const FilterArray = (arr) => {
-                const result = arr.filter(myFunction);
-                function myFunction(value) {
-                    const valueToday = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate();
-                    return toDate == undefined ? valueToday == todayDate : (new Date(value.createdAt).getDate() >= _fromDate && new Date(value.createdAt).getDate() <= _toDate) && (new Date(value.createdAt).getMonth() >= _fromMonth && new Date(value.createdAt).getMonth() <= _toMonth);
-                }
-                return result;
-            }
+            // const OrderFilterArray = (arr) => {
+            //     const res = arr.filter(myFunction);
+            //     function myFunction(value) {
+            //         const valueToday = new Date(value.createdAt).getFullYear() + '-' + new Date(value.createdAt).getMonth() + '-' + new Date(value.createdAt).getDate();
+            //         return toDate == undefined ? valueToday == todayDate && value.status.toLowerCase() == 'delivered' : (valueDate > _fromDate || valueDate > _toDate ? (valueDate > _fromDate || valueDate > _toDate) : (valueDate >= _fromDate && valueDate <= _toDate)) && (new Date(value.createdAt).getMonth() >= _fromMonth && new Date(value.createdAt).getMonth() <= _toMonth) && value.status.toLowerCase() == 'delivered';
+            //     }
+            //     return res;
+            // }
+            // const FilterArray = (arr) => {
+            //     const result = arr.filter(myFunction);
+            //     function myFunction(value) {
+            //         const valueToday = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate();
+            //         return toDate == undefined ? valueToday == todayDate : (new Date(value.createdAt).getDate() >= _fromDate && new Date(value.createdAt).getDate() <= _toDate) && (new Date(value.createdAt).getMonth() >= _fromMonth && new Date(value.createdAt).getMonth() <= _toMonth);
+            //     }
+            //     return result;
+            // }
 
-            const orderValue = OrderFilterArray(orders);
+            const orderValue = filterByDate(orders, _fromDate, _toDate);
             OrdersArray = orderValue;
             console.log(orderValue)
-            const customerValue = FilterArray(customers);
+            const customerValue = filterByDate(customers, _fromDate, _toDate);
+            console.log(customerValue)
             customersArray = customerValue;
-            const noOfOrders = FilterArray(orders)
+            const noOfOrders = filterByDate(orders, _fromDate, _toDate)
+            console.log({ noOfOrders })
             // orders.find(function (value) {
             //     const prodDate = new Date(value.createdAt).getFullYear() + ':' + new Date(value.createdAt).getMonth() + ':' + new Date(value.createdAt).getDate()
             //     const prdDate = new Date(value.createdAt).getDate() < 10 ? '0' + new Date(value.createdAt).getDate() : new Date(value.createdAt).getDate()
